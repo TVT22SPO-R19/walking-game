@@ -1,10 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import GameScreen from './components/gameScreen';
+
+import { enableReactTracking } from "@legendapp/state/config/enableReactTracking";
+// This makes React components automatically track get() calls to re-render
+enableReactTracking({ auto: true });
 
 export default function App() {
   return (
     <View style={styles.container}>
       <Text>Walking game!</Text>
+      {/*<GameScreen></GameScreen>*/}
       <StatusBar style="auto" />
     </View>
   );
