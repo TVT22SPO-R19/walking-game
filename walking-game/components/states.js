@@ -12,9 +12,12 @@ export const state$ = observable({
             level: 1,
             power: 1
         },
+    },
+    stepData: {
+        totalSteps: 0,
+        currSteps: 0
     }
 
 })
 
 export const walkingResult = computed(() => state$.modifiers.walkingPower.get() * state$.modifiers.walkingMultiplier.get());
-
