@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Pedometer } from 'expo-sensors';
-import { state$, stepCount } from './states';
+import { state$ } from './states';
 
 export default function StepCounter() {
   const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
@@ -11,9 +11,9 @@ export default function StepCounter() {
     setIsPedometerAvailable(String(isAvailable));
 
     if (isAvailable) {
-      return Pedometer.watchStepCount(result => {
-        state$.stepData.currSteps.set(result.steps - state$.stepData.totalSteps.get());
-        state$.stepData.totalSteps.set(result.steps);
+      Pedometer.watchStepCount(result => {
+        state$.stepData.currSteps.set(state$.stepData.currSteps.get() + (result.steps - state$.stepData.totalSteps.get())); //Calculate all the steps since last update
+        state$.stepData.totalSteps.set(result.steps); //Update total steps
       });
     }
   };
@@ -30,8 +30,8 @@ export default function StepCounter() {
   //Temp visuals for testing
   return (
     <View style={styles.container}>
-      <Text>Total steps taken {state$.stepData.totalSteps.get()}</Text>
-      <Text>Steps since last update {state$.stepData.currSteps.get()}</Text>
+      <Text>Total steps taken: {state$.stepData.totalSteps.get()}</Text>
+      <Text>Unused steps: {state$.stepData.currSteps.get()}</Text>
     </View>
   );
 }
