@@ -6,14 +6,18 @@ import { state$ } from './states';
 export default function StepCounter() {
   const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
 
+  const savedSteps = state$.stepData.totalSteps.get(); //Load saved steps
   const subscribe = async () => {
     const isAvailable = await Pedometer.isAvailableAsync();
     setIsPedometerAvailable(String(isAvailable));
 
     if (isAvailable) {
+      let lastTotalSteps = savedSteps;
       Pedometer.watchStepCount(result => {
-        state$.stepData.currSteps.set(state$.stepData.currSteps.get() + (result.steps - state$.stepData.totalSteps.get())); //Calculate all the steps since last update
-        state$.stepData.totalSteps.set(result.steps); //Update total steps
+        const totalSteps = result.steps + savedSteps; // New total steps
+        state$.stepData.totalSteps.set(totalSteps);
+        state$.stepData.currSteps.set(totalSteps - lastTotalSteps + state$.stepData.currSteps.get()); // Steps between updates
+        lastTotalSteps = totalSteps;
       });
     }
   };
@@ -29,17 +33,9 @@ export default function StepCounter() {
 
   //Temp visuals for testing
   return (
-    <View style={styles.container}>
+    <View>
       <Text>Total steps taken: {state$.stepData.totalSteps.get()}</Text>
       <Text>Unused steps: {state$.stepData.currSteps.get()}</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
