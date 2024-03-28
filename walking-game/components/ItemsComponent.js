@@ -43,21 +43,24 @@ export default function ItemsComponent() {
     }
 
     const upgradeItem = (itemId) => {
+        
         const upgradeCost = upgradeItemsDict[itemId].cost
-
-        console.log("Upgrade cost: " + upgradeCost);
-
+    
         if (resource > upgradeCost) {
+
             console.log("Upgrading: " + itemId);
             setResource(resource - upgradeCost);
             console.log(resource);
 
-            const updatedUpgradeItemsDict = { ...upgradeItemsDict };
+            const updatedUpgradeItemsDict = { ...upgradeItemsDict }; //Variable to save all values
+
+
             updatedUpgradeItemsDict[itemId].cost *= updatedUpgradeItemsDict[itemId].costMult;
             console.log("New cost: " + updatedUpgradeItemsDict[itemId].cost);
 
             updatedUpgradeItemsDict[itemId].level++;
-            setUpgradeItemsDict(updatedUpgradeItemsDict);
+
+            setUpgradeItemsDict(updatedUpgradeItemsDict); // The dictionary needs to use state otherwise it wont update
 
             const itemEffects = upgradeItemsDict[itemId].effect;
             for (const effectKey in itemEffects) {
@@ -67,12 +70,10 @@ export default function ItemsComponent() {
                     state$.modifiers[effectKey].set(newStateMod);
                 }
             }
-            console.log("Walking power: " + state$.modifiers.walkingPower.get())
-            console.log("Walking mult: " + state$.modifiers.walkingMultiplier.get())    
+
         } else {
             console.log("Too poor.")
         }
-
     }
 
     const addItemToInventory = (itemId) => {
@@ -92,11 +93,6 @@ export default function ItemsComponent() {
                     state$.modifiers[effectKey].set(newStateMod);
                 }
             }
-
-            console.log(state$.modifiers.walkingPower.get())
-            console.log(state$.modifiers.walkingMultiplier.get())
-
-
         }
     };
     const itemsToDisplay = Object.keys(allItemsDict).filter(itemKey => !ownedItems.includes(itemKey));
