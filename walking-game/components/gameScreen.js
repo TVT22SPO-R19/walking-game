@@ -28,6 +28,7 @@ return (
 
 function calcStrengthProg(xp, cap) {                        //function that
   const newStrengthXp = xp + walkingResult.get();
+  state$.stepData.currSteps.set(0);                         //Reset the steps since they were used
   state$.skills.strength.xp.set(newStrengthXp);
 
   if(newStrengthXp >= cap){                                 //if xp is over the cap we do the skill level up calculation
