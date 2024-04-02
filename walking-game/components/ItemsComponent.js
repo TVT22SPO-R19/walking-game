@@ -22,12 +22,13 @@ export default function ItemsComponent() {
     const [resource, setResource] = useState(10000000); // Temporary for testing
 
     useEffect(() => {
-        ownedItems.forEach(itemId => {
+        ownedItems.forEach(itemId => { //This is unneeded however it is useful for debugging.
             console.log(allItemsDict[itemId].name);
         }); 
 
     }, [ownedItems]);
 
+    // This function should only exist as a way to manage buying items. addItemToInventory should simply add an item with ID so we can add items without buying them with this.
     const buyItem = (itemId) => {
         const itemCost = allItemsDict[itemId].cost
 
@@ -61,14 +62,13 @@ export default function ItemsComponent() {
 
             updatedUpgradeItemsDict[itemId].level++;
 
-            setUpgradeItemsDict(updatedUpgradeItemsDict); // The dictionary needs to use state otherwise it wont update
-
             const itemEffects = upgradeItemsDict[itemId].effect;
             for (const effectKey in itemEffects) {
                 if (itemEffects.hasOwnProperty(effectKey)) {
 
                     const effectValue = itemEffects[effectKey];
-                    if (!currentItem.currentStats[effectKey]) {
+
+                    if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
                         currentItem.currentStats[effectKey] = 0;
                     }
 
@@ -81,9 +81,7 @@ export default function ItemsComponent() {
             }
             updatedUpgradeItemsDict[itemId] = currentItem;
 
-            setUpgradeItemsDict(updatedUpgradeItemsDict);
-
-
+            setUpgradeItemsDict(updatedUpgradeItemsDict);  // The dictionary needs to use state otherwise it wont update
         } else {
             console.log("Too poor.")
         }
@@ -102,10 +100,10 @@ export default function ItemsComponent() {
             const currentItem = updatedUpgradeItemsDict[itemId];
 
             for (const effectKey in itemEffects) {
-                
                 if (itemEffects.hasOwnProperty(effectKey)) {
                     const effectValue = itemEffects[effectKey];
-                    if (!currentItem.currentStats[effectKey]) {
+
+                    if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
                         currentItem.currentStats[effectKey] = 0;
                     }
 
@@ -118,7 +116,7 @@ export default function ItemsComponent() {
             }
             updatedUpgradeItemsDict[itemId] = currentItem;
 
-            setUpgradeItemsDict(updatedUpgradeItemsDict);
+            setUpgradeItemsDict(updatedUpgradeItemsDict); // The dictionary needs to use state otherwise it wont update
 
         }
     };

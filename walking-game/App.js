@@ -10,10 +10,8 @@ export default function App() {
     <View style={styles.container}>
       <Text>Walking game!</Text>
       {/*<StepCounter />*/}
-      {<GameScreen></GameScreen>}
-      { /*
-        <ItemsComponent />
-      */ }
+      {/*<GameScreen></GameScreen>*/}
+      {/*<ItemsComponent />*/}
 
       <StatusBar style="auto" />
     </View>
