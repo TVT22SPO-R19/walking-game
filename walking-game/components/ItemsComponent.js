@@ -12,9 +12,9 @@ export default function ItemsComponent() {
     }
 
     const [upgradeItemsDict, setUpgradeItemsDict] = useState({
-        baseBoots: { effect:{walkingMultiplier: 0.5}, cost: 10, costMult: 1.2, level: 1},
-        sunGlasses: { effect:{walkingPower: 0.5}, cost: 10, costMult: 1.2, level: 1},
-        goodSunGlasses: { effect:{walkingPower: 0.1, walkingMultiplier: 0.1}, cost: 100, costMult: 1.1, level: 1}
+        baseBoots: { currentStats:{}, effect:{walkingMultiplier: 0.5}, cost: 10, costMult: 1.2, level: 1},
+        sunGlasses: { currentStats:{}, effect:{walkingPower: 0.5}, cost: 10, costMult: 1.2, level: 1},
+        goodSunGlasses: { currentStats:{}, effect:{walkingPower: 0.1, walkingMultiplier: 0.1}, cost: 100, costMult: 1.1, level: 1}
     })
 
     const [ownedItems, setOwnedItems] = useState([]);
@@ -32,7 +32,7 @@ export default function ItemsComponent() {
         const itemCost = allItemsDict[itemId].cost
 
         if (resource > itemCost) {
-            console.log("Buying" + itemId);
+            console.log("Buying " + itemId);
             setResource(resource - itemCost);
             addItemToInventory(itemId);
             console.log(resource)
@@ -43,7 +43,7 @@ export default function ItemsComponent() {
     }
 
     const upgradeItem = (itemId) => {
-        
+
         const upgradeCost = upgradeItemsDict[itemId].cost
     
         if (resource > upgradeCost) {
@@ -53,6 +53,7 @@ export default function ItemsComponent() {
             console.log(resource);
 
             const updatedUpgradeItemsDict = { ...upgradeItemsDict }; //Variable to save all values
+            const currentItem = updatedUpgradeItemsDict[itemId];
 
 
             updatedUpgradeItemsDict[itemId].cost *= updatedUpgradeItemsDict[itemId].costMult;
@@ -65,11 +66,23 @@ export default function ItemsComponent() {
             const itemEffects = upgradeItemsDict[itemId].effect;
             for (const effectKey in itemEffects) {
                 if (itemEffects.hasOwnProperty(effectKey)) {
-                    let prevStateMod = state$.modifiers[effectKey].get();
-                    let newStateMod = prevStateMod + itemEffects[effectKey];
+
+                    const effectValue = itemEffects[effectKey];
+                    if (!currentItem.currentStats[effectKey]) {
+                        currentItem.currentStats[effectKey] = 0;
+                    }
+
+                    currentItem.currentStats[effectKey] += effectValue;
+                    
+                    const prevStateMod = state$.modifiers[effectKey].get();
+                    const newStateMod = prevStateMod + effectValue;
                     state$.modifiers[effectKey].set(newStateMod);
                 }
             }
+            updatedUpgradeItemsDict[itemId] = currentItem;
+
+            setUpgradeItemsDict(updatedUpgradeItemsDict);
+
 
         } else {
             console.log("Too poor.")
@@ -84,15 +97,29 @@ export default function ItemsComponent() {
             setOwnedItems(prevItems => [...prevItems, itemId]);
             
             const itemEffects = allItemsDict[itemId].effect;
-            console.log(itemEffects)
+
+            const updatedUpgradeItemsDict = { ...upgradeItemsDict };
+            const currentItem = updatedUpgradeItemsDict[itemId];
 
             for (const effectKey in itemEffects) {
+                
                 if (itemEffects.hasOwnProperty(effectKey)) {
-                    let prevStateMod = state$.modifiers[effectKey].get();
-                    let newStateMod = prevStateMod + itemEffects[effectKey];
+                    const effectValue = itemEffects[effectKey];
+                    if (!currentItem.currentStats[effectKey]) {
+                        currentItem.currentStats[effectKey] = 0;
+                    }
+
+                    currentItem.currentStats[effectKey] += effectValue;
+                    
+                    const prevStateMod = state$.modifiers[effectKey].get();
+                    const newStateMod = prevStateMod + effectValue;
                     state$.modifiers[effectKey].set(newStateMod);
-                }
+                    }
             }
+            updatedUpgradeItemsDict[itemId] = currentItem;
+
+            setUpgradeItemsDict(updatedUpgradeItemsDict);
+
         }
     };
     const itemsToDisplay = Object.keys(allItemsDict).filter(itemKey => !ownedItems.includes(itemKey));
@@ -130,10 +157,11 @@ export default function ItemsComponent() {
                                 <View key={item.id}>
                                     <Text>Name: {item.name}</Text>
                                     <Text>Effect:</Text>
-                                    {Object.entries(item.effect).map(([effectKey, value]) => (
-                                        <Text key={effectKey}>{effectKey}: {value}</Text>
+                                    {Object.entries(itemUpgrade.currentStats).map(([effectKey, value]) => (
+                                        <Text key={effectKey}>{effectKey}: {value.toFixed(2)}</Text>
                                     ))}
                                     <Text> Level: {itemUpgrade.level}</Text>
+                                    <Text> Cost: {itemUpgrade.cost.toFixed(2)}</Text>
                                     <Button 
                                         onPress={() => {
                                             upgradeItem(itemKey);
