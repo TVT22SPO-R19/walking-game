@@ -39,7 +39,8 @@ export const state$ = observable({
     itemData: {
         baseBoots: {
           level: 1
-        },
+        }
+    },
 
     currency: {
         gold: 0,
