@@ -51,6 +51,7 @@ export default function GameScreen() {
 
   };
 
+
   const activateAgi = () => {
 
     gameStates.isStrActive.set(false)

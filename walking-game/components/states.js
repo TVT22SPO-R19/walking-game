@@ -35,9 +35,16 @@ export const state$ = observable({
         totalSteps: 0, //Total number of steps taken
         currSteps: 0 //Number of steps taken since the last update
     },
-    currency:{
+
+    itemData: {
+        baseBoots: {
+          level: 1
+        },
+
+    currency: {
         gold: 0,
         diamonds: 0
+
     }
 
 })
