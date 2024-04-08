@@ -12,10 +12,32 @@ export const state$ = observable({
             level: 1,
             power: 1
         },
+        agility: {
+            xp: 0,
+            xpToLevel: 100,
+            level: 1,
+            power: 1
+        },
+        stamina: {
+            xp: 0,
+            xpToLevel: 100,
+            level: 1,
+            power: 1
+        },
+        intelligence: {
+            xp: 0,
+            xpToLevel: 100,
+            level: 1,
+            power: 1
+        },
     },
     stepData: {
         totalSteps: 0, //Total number of steps taken
         currSteps: 0 //Number of steps taken since the last update
+    },
+    currency:{
+        gold: 0,
+        diamonds: 0
     }
 
 })
