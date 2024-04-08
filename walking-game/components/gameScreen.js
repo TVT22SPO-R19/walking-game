@@ -1,4 +1,4 @@
-import { observe,computed } from "@legendapp/state";
+import { observe, computed } from "@legendapp/state";
 import { state$, walkingResult } from "./states";
 import { useInterval } from "usehooks-ts"
 import { Text, View } from "react-native";
@@ -12,7 +12,6 @@ export default function GameScreen() {
 useInterval(() => {
   
   calcStrengthProg(strengthXp, strengthCap)
-  
 }, 1000);
 
 

@@ -16,6 +16,9 @@ export const state$ = observable({
     stepData: {
         totalSteps: 0, //Total number of steps taken
         currSteps: 0 //Number of steps taken since the last update
+    },
+    itemData: {
+        baseBoots: {level: 1},
     }
 
 })
