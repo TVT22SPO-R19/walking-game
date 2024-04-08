@@ -12,7 +12,6 @@ export default function GameScreen() {
 useInterval(() => {
   
   calcStrengthProg(strengthXp, strengthCap)
-  
 }, 1000);
 
 

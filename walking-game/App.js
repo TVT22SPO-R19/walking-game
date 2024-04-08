@@ -12,9 +12,9 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text>Walking game!</Text>
-      {/*<StepCounter />*/}
-      {/*<GameScreen></GameScreen>*/}
-      {/*<ItemsComponent />*/}
+      {<StepCounter />}
+      {<GameScreen></GameScreen>}
+      {<ItemsComponent />}
 
       <StatusBar style="auto" />
     </View>
