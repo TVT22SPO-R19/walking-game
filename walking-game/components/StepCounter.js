@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, Text, View } from 'react-native';
 import { Pedometer } from 'expo-sensors';
 import { state$ } from './states';
 
@@ -22,12 +22,29 @@ export default function StepCounter() {
     }
   };
 
+  async function requestPermissions() {
+    await Pedometer.requestPermissionsAsync();
+    const { status } = await Pedometer.getPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(
+        "Permission Required",
+        "This game needs physical activity permission to function.",
+        [
+          { 
+            text: "Open Settings", 
+            onPress: () => Linking.openSettings() // Open permission settings
+          }
+        ]
+      );
+    }
+  }
+
   useEffect(() => {
     let subscription;
-    subscribe().then((sub) => {
-      subscription = sub;
-    });
-
+    (async () => {
+      await requestPermissions();
+      subscription = await subscribe();
+    })();
     return () => subscription && subscription.remove();
   }, []);
 
