@@ -9,7 +9,10 @@ export function initItems() {
     allItemsDict = {
         baseBoots: { name: "Really bad boots.", effect: { walkingMultiplier: 5 }, cost: 800 },
         sunGlasses: { name: "Bad sunglasses.", effect: { walkingPower: 5 }, cost: 223 },
-        goodSunGlasses: { name: "Good sunglasses.", effect: { walkingPower: 1, walkingMultiplier: 1 }, cost: 1232 }
+        goodSunGlasses: { name: "Good sunglasses.", effect: { walkingPower: 1, walkingMultiplier: 1 }, cost: 1232 },
+        storeItem1: { name: "Store debug item 1.", effect: { walkingPower: 5 }, cost: 223, restricted: true },
+        storeItem2: { name: "Store debug item 1.", effect: { walkingPower: 5 }, cost: 223, restricted: true },
+        storeItem3: { name: "Store debug item 1.", effect: { walkingPower: 5 }, cost: 223, restricted: true },
 
     }
 
@@ -31,37 +34,40 @@ export function initItems() {
         const updatedUpgradeItemsDict = { ...upgradeItemsDict };
 
         for (const item in gottenData) {
-            addItemToInventory(item)
+            if (!ownedItems.includes(item)){
+                addItemToInventory(item)
+                curLevel = gottenData[item].level;
 
-            curLevel = gottenData[item].level;
-
-            updatedUpgradeItemsDict[item].level = curLevel;
-            const currentItem = updatedUpgradeItemsDict[item];
-
-            const itemEffects = upgradeItemsDict[item].effect;
-            curLevel--;
-
-            for (const effectKey in itemEffects) {
-
-                if (itemEffects.hasOwnProperty(effectKey)) {
-
-                    const effectValue = itemEffects[effectKey];
-
-                    if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
-                        currentItem.currentStats[effectKey] = 0;
+                updatedUpgradeItemsDict[item].level = curLevel;
+                const currentItem = updatedUpgradeItemsDict[item];
+    
+                const itemEffects = upgradeItemsDict[item].effect;
+                curLevel--;
+    
+                for (const effectKey in itemEffects) {
+    
+                    if (itemEffects.hasOwnProperty(effectKey)) {
+    
+                        const effectValue = itemEffects[effectKey];
+    
+                        if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
+                            currentItem.currentStats[effectKey] = 0;
+                        }
+                        newValue = effectValue * curLevel;
+    
+                        currentItem.currentStats[effectKey] += newValue;
+    
+                        const prevStateMod = state$.modifiers[effectKey].get();
+                        const newStateMod = prevStateMod + effectValue;
+                        state$.modifiers[effectKey].set(newStateMod);
                     }
-                    newValue = effectValue * curLevel;
-
-                    currentItem.currentStats[effectKey] += newValue;
-
-                    const prevStateMod = state$.modifiers[effectKey].get();
-                    const newStateMod = prevStateMod + effectValue;
-                    state$.modifiers[effectKey].set(newStateMod);
                 }
+    
+                newCost = updatedUpgradeItemsDict[item].costMult ** curLevel;
+                updatedUpgradeItemsDict[item].cost *= newCost;
+    
             }
 
-            newCost = updatedUpgradeItemsDict[item].costMult ** curLevel;
-            updatedUpgradeItemsDict[item].cost *= newCost;
         }
         setUpgradeItemsDict(updatedUpgradeItemsDict);  // The dictionary needs to use state otherwise it wont update
 
@@ -122,8 +128,12 @@ export default function ItemsComponent() {
     useEffect(() => {
         if (runInit) {
             for (const item in state$.itemData) {
-                setOwnedItems(prevItems => [...prevItems, item]);
+                if (!ownedItems.includes(item)){
+                    setOwnedItems(prevItems => [...prevItems, item]);
+
+                }
             }
+            console.log("Ran runInit");
             runInit = false;
         }
         console.log("Ran useEffect.")
@@ -236,7 +246,9 @@ export default function ItemsComponent() {
         }
     };
 
-    const itemsToDisplay = Object.keys(allItemsDict).filter(itemKey => !ownedItems.includes(itemKey));
+    const itemsToDisplay = Object.keys(allItemsDict)
+        .filter(itemKey => !ownedItems.includes(itemKey)) // Filter out owned items
+        .filter(itemKey => !allItemsDict[itemKey].restricted); // Filter out restricted items
 
     return (
         <View>
