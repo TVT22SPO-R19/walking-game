@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { state$ } from "./states";
 
-export default function ItemsComponent() {
+export function initItems() {
+
+    const [ownedItems, setOwnedItems] = useState([]);
 
     allItemsDict = {
         baseBoots: { name: "Really bad boots.", effect: { walkingMultiplier: 5 }, cost: 800 },
@@ -16,10 +18,6 @@ export default function ItemsComponent() {
         sunGlasses: { currentStats: {}, effect: { walkingPower: 0.5 }, cost: 10, costMult: 1.2, level: 1 },
         goodSunGlasses: { currentStats: {}, effect: { walkingPower: 0.1, walkingMultiplier: 0.1 }, cost: 100, costMult: 1.1, level: 1 }
     })
-
-    const [ownedItems, setOwnedItems] = useState([]);
-
-    const [resource, setResource] = useState(10000000); // Temporary for testing
 
     useEffect(() => {
         initializeItemData()
@@ -68,7 +66,68 @@ export default function ItemsComponent() {
         setUpgradeItemsDict(updatedUpgradeItemsDict);  // The dictionary needs to use state otherwise it wont update
 
     }
+    const addItemToInventory = (itemId) => {
+        if (ownedItems.includes(itemId)) {
 
+            console.log("Already owned.")
+
+        } else {
+
+            setOwnedItems(prevItems => [...prevItems, itemId]);
+
+            if (!state$.itemData.hasOwnProperty(itemId)) {
+                state$.itemData[itemId].set({ level: 1 })
+            }
+
+            const itemEffects = allItemsDict[itemId].effect;
+
+            const updatedUpgradeItemsDict = { ...upgradeItemsDict };
+            const currentItem = updatedUpgradeItemsDict[itemId];
+
+            for (const effectKey in itemEffects) {
+                if (itemEffects.hasOwnProperty(effectKey)) {
+                    const effectValue = itemEffects[effectKey];
+
+                    if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
+                        currentItem.currentStats[effectKey] = 0;
+                    }
+
+                    currentItem.currentStats[effectKey] += effectValue;
+
+                    const prevStateMod = state$.modifiers[effectKey].get();
+                    const newStateMod = prevStateMod + effectValue;
+                    state$.modifiers[effectKey].set(newStateMod);
+                }
+            }
+            updatedUpgradeItemsDict[itemId] = currentItem;
+
+            setUpgradeItemsDict(updatedUpgradeItemsDict); // The dictionary needs to use state otherwise it wont update
+
+        }
+    };
+
+    return { allItemsDict, upgradeItemsDict }
+}
+
+export default function ItemsComponent() {
+
+    const [resource, setResource] = useState(10000000); // Temporary for testing
+
+    //Gets the dictionaries and array from init.
+    const { allItemsDict, upgradeItemsDict: initialUpgradeItemsDict } = initItems();
+    const [upgradeItemsDict, setUpgradeItemsDict] = useState(initialUpgradeItemsDict);
+    const [ownedItems, setOwnedItems] = useState([]);
+
+    let runInit = true;
+    useEffect(() => {
+        if (runInit) {
+            for (const item in state$.itemData) {
+                setOwnedItems(prevItems => [...prevItems, item]);
+            }
+            runInit = false;
+        }
+        console.log("Ran useEffect.")
+    }, [])
 
     // This function should only exist as a way to manage buying items. addItemToInventory should simply add an item with ID so we can add items without buying them with this.
     const buyItem = (itemId) => {
@@ -139,15 +198,15 @@ export default function ItemsComponent() {
 
     const addItemToInventory = (itemId) => {
         if (ownedItems.includes(itemId)) {
-            
+
             console.log("Already owned.")
 
         } else {
 
             setOwnedItems(prevItems => [...prevItems, itemId]);
-            
+
             if (!state$.itemData.hasOwnProperty(itemId)) {
-                state$.itemData[itemId].set({level: 1})
+                state$.itemData[itemId].set({ level: 1 })
             }
 
             const itemEffects = allItemsDict[itemId].effect;
