@@ -13,7 +13,7 @@ export default function App() {
     <View style={styles.container}>
       <Text>Walking game!</Text>
       {<StepCounter />}
-      {<GameScreen></GameScreen>}
+      {<GameScreen />}
       {<ItemsComponent />}
 
       <StatusBar style="auto" />

@@ -50,4 +50,8 @@ export const state$ = observable({
 
 })
 
-export const walkingResult = computed(() => (state$.skills.strength.level.get() + state$.stepData.currSteps.get() )  * state$.modifiers.walkingMultiplier.get());
+export const walkingResult = computed(() => 
+((state$.skills.strength.level.get() * state$.stepData.currSteps.get() ) + 
+state$.skills.agility.level.get() + state$.skills.stamina.level.get() )  * state$.modifiers.walkingMultiplier.get()); //This is used in every xp calculation as 
+                                                                                                                      //the walking result modified my skills
+export const intmod = computed(() => 2-(state$.skills.intelligence.level.get()/100));
