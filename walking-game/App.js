@@ -5,6 +5,7 @@ import ItemsComponent from './components/ItemsComponent';
 import GameScreen from './components/gameScreen';
 
 import { enableReactTracking } from "@legendapp/state/config/enableReactTracking";
+import ShopComponent from './components/shopComponent';
 // This makes React components automatically track get() calls to re-render
 enableReactTracking({ auto: true });
 
@@ -15,6 +16,7 @@ export default function App() {
       {<StepCounter />}
       {<GameScreen />}
       {<ItemsComponent />}
+      {<ShopComponent />}
 
       <StatusBar style="auto" />
     </View>
