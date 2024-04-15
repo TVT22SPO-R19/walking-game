@@ -7,9 +7,9 @@ export function initItems() {
     const [ownedItems, setOwnedItems] = useState([]);
 
     allItemsDict = {
-        baseBoots: { name: "Really bad boots.", effect: { walkingMultiplier: 5 }, cost: 800 },
-        sunGlasses: { name: "Bad sunglasses.", effect: { walkingPower: 5 }, cost: 223 },
-        goodSunGlasses: { name: "Good sunglasses.", effect: { walkingPower: 1, walkingMultiplier: 1 }, cost: 1232 },
+        baseBoots: { name: "Really bad boots.", effect: { baseMod: { walkingMultiplier: 5 }, skillMod: { stamina: 1 } }, cost: 800 },
+        sunGlasses: { name: "Bad sunglasses.", effect: { baseMod: { walkingPower: 5 } }, cost: 223 },
+        goodSunGlasses: { name: "Good sunglasses.", effect: { baseMod: { walkingPower: 1, walkingMultiplier: 1 }, skillMod: { stamina: 1, strenght: 1 } }, cost: 1232 },
         storeItem1: { name: "Store debug item 1.", effect: { walkingPower: 5 }, cost: 223, restricted: true },
         storeItem2: { name: "Store debug item 1.", effect: { walkingPower: 5 }, cost: 223, restricted: true },
         storeItem3: { name: "Store debug item 1.", effect: { walkingPower: 5 }, cost: 223, restricted: true },
@@ -23,8 +23,7 @@ export function initItems() {
     })
 
     useEffect(() => {
-        initializeItemData()
-
+        initializeItemData();
     }, []);
 
     //The following code is to initialize and load saved values from states. This code should only run at the start though it shouldnt cause problems if it ran again.
@@ -34,41 +33,50 @@ export function initItems() {
         const updatedUpgradeItemsDict = { ...upgradeItemsDict };
 
         for (const item in gottenData) {
-            if (!ownedItems.includes(item)){
-                addItemToInventory(item)
+            initStage = gottenData[item].init
+            if (initStage < gottenData[item].level) {
+                console.log("Init is smaller than level")
+                if (initStage == 0) {
+                    addItemToInventory(item);
+                    initStage = 1;
+                    console.log(item + " Stage " + initStage)
+                }
                 curLevel = gottenData[item].level;
 
                 updatedUpgradeItemsDict[item].level = curLevel;
                 const currentItem = updatedUpgradeItemsDict[item];
-    
+
                 const itemEffects = upgradeItemsDict[item].effect;
-                curLevel--;
-    
+
+                curLevel -= initStage;
+                newCost = updatedUpgradeItemsDict[item].costMult ** curLevel;
+                updatedUpgradeItemsDict[item].cost *= newCost;
+
                 for (const effectKey in itemEffects) {
-    
+
                     if (itemEffects.hasOwnProperty(effectKey)) {
-    
+
                         const effectValue = itemEffects[effectKey];
-    
+
                         if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
                             currentItem.currentStats[effectKey] = 0;
                         }
                         newValue = effectValue * curLevel;
-    
+
                         currentItem.currentStats[effectKey] += newValue;
-    
+
                         const prevStateMod = state$.modifiers[effectKey].get();
                         const newStateMod = prevStateMod + effectValue;
                         state$.modifiers[effectKey].set(newStateMod);
                     }
                 }
-    
-                newCost = updatedUpgradeItemsDict[item].costMult ** curLevel;
-                updatedUpgradeItemsDict[item].cost *= newCost;
-    
+                initStage = gottenData[item].level;
+                state$.itemData[item].init.set(initStage);
+                console.log(state$.itemData[item].init.get());
             }
 
         }
+
         setUpgradeItemsDict(updatedUpgradeItemsDict);  // The dictionary needs to use state otherwise it wont update
 
     }
@@ -92,23 +100,29 @@ export function initItems() {
 
             for (const effectKey in itemEffects) {
                 if (itemEffects.hasOwnProperty(effectKey)) {
-                    const effectValue = itemEffects[effectKey];
+                    const effectValues = itemEffects[effectKey];
 
-                    if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
-                        currentItem.currentStats[effectKey] = 0;
+                    // Check if it's baseMod or skillMod
+                    if (effectKey === 'baseMod') {
+                        for (const modKey in effectValues) {
+                            if (effectValues.hasOwnProperty(modKey)) {
+                                state$.modifiers[modKey].set(state$.modifiers[modKey].get() + effectValues[modKey]);
+                            }
+                        }
+                    } else if (effectKey === 'skillMod') {
+                        for (const skillKey in effectValues) {
+                            if (effectValues.hasOwnProperty(skillKey)) {
+                                state$.skills[skillKey].power.set(state$.skills[skillKey].power.get() + effectValues[skillKey]);
+                            }
+                        }
                     }
-
-                    currentItem.currentStats[effectKey] += effectValue;
-
-                    const prevStateMod = state$.modifiers[effectKey].get();
-                    const newStateMod = prevStateMod + effectValue;
-                    state$.modifiers[effectKey].set(newStateMod);
                 }
             }
             updatedUpgradeItemsDict[itemId] = currentItem;
+            currentItem.currentStats = { ...currentItem.currentStats, ...itemEffects };
 
             setUpgradeItemsDict(updatedUpgradeItemsDict); // The dictionary needs to use state otherwise it wont update
-
+            console.log(state$.get())
         }
     };
 
@@ -128,7 +142,7 @@ export default function ItemsComponent() {
     useEffect(() => {
         if (runInit) {
             for (const item in state$.itemData) {
-                if (!ownedItems.includes(item)){
+                if (!ownedItems.includes(item)) {
                     setOwnedItems(prevItems => [...prevItems, item]);
 
                 }
@@ -181,7 +195,6 @@ export default function ItemsComponent() {
         updatedUpgradeItemsDict[itemId].level++;
         state$.itemData[itemId].level.set(updatedUpgradeItemsDict[itemId].level)
 
-        console.log(state$.itemData.get())
 
         const itemEffects = upgradeItemsDict[itemId].effect;
         for (const effectKey in itemEffects) {
@@ -200,7 +213,11 @@ export default function ItemsComponent() {
                 state$.modifiers[effectKey].set(newStateMod);
             }
         }
+        state$.itemData[itemId].init.set(updatedUpgradeItemsDict[itemId].level);
+
+
         updatedUpgradeItemsDict[itemId] = currentItem;
+        console.log(state$.itemData.get())
 
         setUpgradeItemsDict(updatedUpgradeItemsDict);  // The dictionary needs to use state otherwise it wont update
     }
@@ -216,7 +233,8 @@ export default function ItemsComponent() {
             setOwnedItems(prevItems => [...prevItems, itemId]);
 
             if (!state$.itemData.hasOwnProperty(itemId)) {
-                state$.itemData[itemId].set({ level: 1 })
+                state$.itemData[itemId].set({ level: 1, init: 1 })
+
             }
 
             const itemEffects = allItemsDict[itemId].effect;
@@ -226,20 +244,26 @@ export default function ItemsComponent() {
 
             for (const effectKey in itemEffects) {
                 if (itemEffects.hasOwnProperty(effectKey)) {
-                    const effectValue = itemEffects[effectKey];
+                    const effectValues = itemEffects[effectKey];
 
-                    if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
-                        currentItem.currentStats[effectKey] = 0;
+                    // Check if it's baseMod or skillMod
+                    if (effectKey === 'baseMod') {
+                        for (const modKey in effectValues) {
+                            if (effectValues.hasOwnProperty(modKey)) {
+                                state$.modifiers[modKey].set(state$.modifiers[modKey].get() + effectValues[modKey]);
+                            }
+                        }
+                    } else if (effectKey === 'skillMod') {
+                        for (const skillKey in effectValues) {
+                            if (effectValues.hasOwnProperty(skillKey)) {
+                                state$.skills[skillKey].power.set(state$.skills[skillKey].power.get() + effectValues[skillKey]);
+                            }
+                        }
                     }
-
-                    currentItem.currentStats[effectKey] += effectValue;
-
-                    const prevStateMod = state$.modifiers[effectKey].get();
-                    const newStateMod = prevStateMod + effectValue;
-                    state$.modifiers[effectKey].set(newStateMod);
                 }
             }
             updatedUpgradeItemsDict[itemId] = currentItem;
+            currentItem.currentStats = { ...currentItem.currentStats, ...itemEffects };
 
             setUpgradeItemsDict(updatedUpgradeItemsDict); // The dictionary needs to use state otherwise it wont update
 
@@ -283,8 +307,10 @@ export default function ItemsComponent() {
                             <View key={item.id}>
                                 <Text>Name: {item.name}</Text>
                                 <Text>Effect:</Text>
-                                {Object.entries(itemUpgrade.currentStats).map(([effectKey, value]) => (
-                                    <Text key={effectKey}>{effectKey}: {value.toFixed(2)}</Text>
+                                {Object.entries(itemUpgrade.currentStats).map(([category, value]) => (
+                                    Object.entries(itemUpgrade.currentStats[category]).map(([keyEffect, keyValue]) => (
+                                        <Text key={keyEffect}>{keyEffect}: {keyValue.toFixed(2)}</Text>
+                                    ))
                                 ))}
                                 <Text> Level: {itemUpgrade.level}</Text>
                                 <Text> Cost: {itemUpgrade.cost.toFixed(2)}</Text>
