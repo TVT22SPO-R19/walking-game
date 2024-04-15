@@ -37,15 +37,15 @@ export default function GameScreen() {
   useInterval(() => {
 
     if (currSteps > 0) {
-      calcGold(currSteps)
+      calcCurrency(currSteps)
       if (gameStates.isStrActive.get() === true) {
         calcStrengthProg(strengthXp, strengthCap)
       } else if (gameStates.isAgiActive.get() === true) {
-         calcAgilityProg(agilityXp,agilityCap)
+        calcAgilityProg(agilityXp, agilityCap)
       } else if (gameStates.isStaActive.get() === true) {
-         calcstaminaProg(staminaXp,staminaCap)
+        calcstaminaProg(staminaXp, staminaCap)
       } else if (gameStates.isIntActive.get() === true) {
-        calcIntelligenceProg(intelligenceXp,intelligenceCap)
+        calcIntelligenceProg(intelligenceXp, intelligenceCap)
       } else { }
     }
   }, 1000);
@@ -87,6 +87,8 @@ export default function GameScreen() {
     <View>
       <Text> </Text>
       <Text>DELETE ME GOLD: {state$.currency.gold.get()}</Text>
+      <Text>DELETE ME DIAMOND: {state$.currency.diamonds.get()}</Text>
+      <Text>DELETE ME STEPSTODIAMOND: {state$.currency.currStepToDia.get()}</Text>
       <Text>Strength XP: {strengthXp}/{strengthCap}</Text>
       <Text>Strength level: {strengthLvl} </Text>
       <Button onPress={activateStr} title={gameStates.isStrActive.get() ? 'Active' : 'Deactive'}></Button>
@@ -188,7 +190,17 @@ function calcIntelligenceProg(xp, cap) {                        //function that 
   }
 }
 
-function calcGold(steps) {
+function calcCurrency(steps) {
   state$.currency.gold.set((prev) => prev + steps)
+  state$.currency.currStepToDia.set((prev) => prev + steps)
+  if (state$.currency.currStepToDia.get() >= state$.currency.stepToDia.get()) {
+    state$.currency.currStepToDia.set(0)
+    const overflow = state$.currency.currStepToDia.get() - state$.currency.stepToDia.get();
+    if (overflow > 0) {
+      state$.currency.currStepToDia.set(overflow)
+    } else {
+      state$.currency.diamonds.set((prev) => prev + 1)
+    }
+  }
 }
 
