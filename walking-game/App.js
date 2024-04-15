@@ -17,7 +17,6 @@ export default function App() {
       {<RandomItemView/>}
       {<ItemsComponent />}
       {<GameScreen />}
-      {<ItemsComponent />}
       {<ShopComponent />}
 
 
