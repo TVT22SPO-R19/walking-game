@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import StepCounter from './components/StepCounter';
 import ItemsComponent from './components/ItemsComponent';
 import GameScreen from './components/gameScreen';
-
+import RandomItemView from './components/randomItemView';
 import { enableReactTracking } from "@legendapp/state/config/enableReactTracking";
 import ShopComponent from './components/shopComponent';
 // This makes React components automatically track get() calls to re-render
@@ -15,8 +15,10 @@ export default function App() {
       <Text>Walking game!</Text>
       {<StepCounter />}
       {<GameScreen></GameScreen>}
-      {<ItemsComponent />}
-      {<ShopComponent />}
+      {<RandomItemView/>}
+
+      {/*<ItemsComponent />*/}
+      {/*<ShopComponent />*/}
 
       <StatusBar style="auto" />
     </View>

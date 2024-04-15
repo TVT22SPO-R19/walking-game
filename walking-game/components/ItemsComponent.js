@@ -1,25 +1,24 @@
 import { useEffect, useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { state$ } from "./states";
+import itemDatabase from './itemDatabase';
+
 
 export function initItems() {
 
     const [ownedItems, setOwnedItems] = useState([]);
 
-    allItemsDict = {
-        baseBoots: { name: "Really bad boots.", effect: { baseMod: { walkingMultiplier: 5 }, skillMod: { stamina: 1 } }, cost: 800 },
-        sunGlasses: { name: "Bad sunglasses.", effect: { baseMod: { walkingPower: 5 } }, cost: 223 },
-        goodSunGlasses: { name: "Good sunglasses.", effect: { baseMod: { walkingPower: 1, walkingMultiplier: 1 }, skillMod: { stamina: 1, strenght: 1 } }, cost: 1232 },
-        storeItem1: { name: "Store debug item 1.", effect: { walkingPower: 5 }, cost: 223, restricted: true },
-        storeItem2: { name: "Store debug item 1.", effect: { walkingPower: 5 }, cost: 223, restricted: true },
-        storeItem3: { name: "Store debug item 1.", effect: { walkingPower: 5 }, cost: 223, restricted: true },
 
-    }
+    const allItemsDict = itemDatabase();
 
     const [upgradeItemsDict, setUpgradeItemsDict] = useState({
         baseBoots: { currentStats: {}, effect: { walkingMultiplier: 0.5 }, cost: 10, costMult: 1.2, level: 1 },
         sunGlasses: { currentStats: {}, effect: { walkingPower: 0.5 }, cost: 10, costMult: 1.2, level: 1 },
-        goodSunGlasses: { currentStats: {}, effect: { walkingPower: 0.1, walkingMultiplier: 0.1 }, cost: 100, costMult: 1.1, level: 1 }
+        goodSunGlasses: { currentStats: {}, effect: { walkingPower: 0.1, walkingMultiplier: 0.1 }, cost: 100, costMult: 1.1, level: 1 },
+        storeItem1: { currentStats: {}, effect: { walkingPower: 0.1, walkingMultiplier: 0.1 }, cost: 100, costMult: 1.1, level: 1 },
+        storeItem2: { currentStats: {}, effect: { walkingPower: 0.1, walkingMultiplier: 0.1 }, cost: 100, costMult: 1.1, level: 1 },
+        storeItem3: { currentStats: {}, effect: { walkingPower: 0.1, walkingMultiplier: 0.1 }, cost: 100, costMult: 1.1, level: 1 },
+
     })
 
     useEffect(() => {
@@ -90,7 +89,7 @@ export function initItems() {
             setOwnedItems(prevItems => [...prevItems, itemId]);
 
             if (!state$.itemData.hasOwnProperty(itemId)) {
-                state$.itemData[itemId].set({ level: 1 })
+                state$.itemData[itemId].set({ level: 1, init: 1 })
             }
 
             const itemEffects = allItemsDict[itemId].effect;
@@ -126,7 +125,7 @@ export function initItems() {
         }
     };
 
-    return { allItemsDict, upgradeItemsDict }
+    return { allItemsDict, upgradeItemsDict, initializeItemData }
 }
 
 export default function ItemsComponent() {
