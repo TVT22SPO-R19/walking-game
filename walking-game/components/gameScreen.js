@@ -12,7 +12,7 @@ const gameStates = observable({
 });
 
 export default function GameScreen() {
-
+  
 
   const strengthXp = state$.skills.strength.xp.get() //Defining a variable that gets the corresponding global state so it can be used in code.
   const strengthCap = state$.skills.strength.xpToLevel.get()
