@@ -6,14 +6,16 @@ import itemDatabase from './itemDatabase';
 
 
 export default RandomItemView = () => {
+
     const [currentItem, setCurrentItem] = useState(null);
     const [intervalId, setIntervalId] = useState(null);
-    const allItemsDict = itemDatabase();
+    const allItemsDict = itemDatabase(); //Decided to move items to own component so its easier to edit in the future.
 
+    //The function that needs to be run to init items. 
     const { initializeItemData } = initItems();
 
     useEffect(() => {
-        // Function to select a random item from allItemsDict
+        // Function to select a random item from allItemsDict. Items require the key restricted with the value shop. 
         const selectRandomItem = () => {
             const filteredItems = Object.entries(allItemsDict)
                 .filter(([id, item]) => item.restricted === "shop")
@@ -27,7 +29,7 @@ export default RandomItemView = () => {
             setCurrentItem(filteredItems[randomId]);
         };
 
-        // Start timer to change item every 30 seconds
+        // Start timer to change store item. 1000 = 1 second.
         const id = setInterval(selectRandomItem, 5000);
 
         setIntervalId(id);
@@ -37,8 +39,7 @@ export default RandomItemView = () => {
         return () => clearInterval(intervalId);
     }, []);
     const handleBuy = () => {
-        // Add logic to handle the purchase action here
-        console.log("Buy button pressed for:", currentItem.id);
+
         if (!state$.itemData.hasOwnProperty(currentItem.id)) {
             state$.itemData[currentItem.id].set({ level: 1, init: 0 });
             initializeItemData();
