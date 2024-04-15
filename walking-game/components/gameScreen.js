@@ -1,5 +1,5 @@
 import { observe, computed } from "@legendapp/state";
-import { state$, walkingResult } from "./states";
+import { state$, walkingResult, intmod } from "./states";
 import { useInterval } from "usehooks-ts"
 import { Text, View, Button } from "react-native";
 import { observable } from '@legendapp/state';
@@ -35,13 +35,21 @@ export default function GameScreen() {
 
 
   useInterval(() => {
-    if (gameStates.isStrActive.get() === true) {
-      if (currSteps > 0) {
+
+    if (currSteps > 0) {
+      calcCurrency(currSteps)
+      if (gameStates.isStrActive.get() === true) {
         calcStrengthProg(strengthXp, strengthCap)
+      } else if (gameStates.isAgiActive.get() === true) {
+        calcAgilityProg(agilityXp, agilityCap)
+      } else if (gameStates.isStaActive.get() === true) {
+        calcstaminaProg(staminaXp, staminaCap)
+      } else if (gameStates.isIntActive.get() === true) {
+        calcIntelligenceProg(intelligenceXp, intelligenceCap)
       } else { }
     }
   }, 1000);
-  
+
   const activateStr = () => {
 
     gameStates.isStrActive.set(true)
@@ -77,7 +85,10 @@ export default function GameScreen() {
 
   return (
     <View>
-      <Text></Text>
+      <Text> </Text>
+      <Text>DELETE ME GOLD: {state$.currency.gold.get()}</Text>
+      <Text>DELETE ME DIAMOND: {state$.currency.diamonds.get()}</Text>
+      <Text>DELETE ME STEPSTODIAMOND: {state$.currency.currStepToDia.get()}</Text>
       <Text>Strength XP: {strengthXp}/{strengthCap}</Text>
       <Text>Strength level: {strengthLvl} </Text>
       <Button onPress={activateStr} title={gameStates.isStrActive.get() ? 'Active' : 'Deactive'}></Button>
@@ -99,7 +110,7 @@ export default function GameScreen() {
 
 }
 
-function calcStrengthProg(xp, cap) {                        //function that
+function calcStrengthProg(xp, cap) {                        //function that calculates the strength xp progress
   const newStrengthXp = xp + walkingResult.get();
   state$.stepData.currSteps.set(0);                         //Reset the steps since they were used
   state$.skills.strength.xp.set(newStrengthXp);
@@ -113,9 +124,83 @@ function calcStrengthProg(xp, cap) {                        //function that
     }
     state$.stepData.currSteps.set(0)
     state$.skills.strength.level.set((v) => v + 1)            //increment skill level
-    const newStrengthcap = Math.round(cap ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
+    const newStrengthcap = Math.round((cap * intmod.get()) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
     state$.skills.strength.xpToLevel.set(newStrengthcap)    //setting the new xp requirement
 
+  }
+}
+
+function calcAgilityProg(xp, cap) {                        //function that calculates the agility xp progress
+  const newAgilityXp = xp + walkingResult.get();
+  state$.stepData.currSteps.set(0);                         //Reset the steps since they were used
+  state$.skills.agility.xp.set(newAgilityXp);
+
+  if (newAgilityXp >= cap) {                                 //if xp is over the cap we do the skill level up calculation
+    const overflow = newAgilityXp - cap;                              //calculating overflow of xp so none is wasted
+    if (overflow > 0) {
+      state$.skills.agility.xp.set(overflow)               //sets the overflown xp as the new xp value
+    } else {
+      state$.skills.agility.xp.set(0)
+    }
+    state$.stepData.currSteps.set(0)
+    state$.skills.agility.level.set((v) => v + 1)            //increment skill level
+    const newAgilityCap = Math.round((cap * intmod.get()) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
+    state$.skills.agility.xpToLevel.set(newAgilityCap)    //setting the new xp requirement
+
+  }
+}
+
+function calcstaminaProg(xp, cap) {                        //function that calculates the stamina xp progress
+  const newStaminaXp = xp + walkingResult.get();
+  state$.stepData.currSteps.set(0);                         //Reset the steps since they were used
+  state$.skills.stamina.xp.set(newStaminaXp);
+
+  if (newStaminaXp >= cap) {                                 //if xp is over the cap we do the skill level up calculation
+    const overflow = newStaminaXp - cap;                              //calculating overflow of xp so none is wasted
+    if (overflow > 0) {
+      state$.skills.stamina.xp.set(overflow)               //sets the overflown xp as the new xp value
+    } else {
+      state$.skills.stamina.xp.set(0)
+    }
+    state$.stepData.currSteps.set(0)
+    state$.skills.stamina.level.set((v) => v + 1)            //increment skill level
+    const newStaminaCap = Math.round((cap * intmod.get()) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
+    state$.skills.stamina.xpToLevel.set(newStaminaCap)    //setting the new xp requirement
+
+  }
+}
+
+function calcIntelligenceProg(xp, cap) {                        //function that calculates the intelligence xp progress
+  const newIntelligenceXp = xp + walkingResult.get();
+  state$.stepData.currSteps.set(0);                         //Reset the steps since they were used
+  state$.skills.intelligence.xp.set(newIntelligenceXp);
+
+  if (newIntelligenceXp >= cap) {                                 //if xp is over the cap we do the skill level up calculation
+    const overflow = newIntelligenceXp - cap;                              //calculating overflow of xp so none is wasted
+    if (overflow > 0) {
+      state$.skills.intelligence.xp.set(overflow)               //sets the overflown xp as the new xp value
+    } else {
+      state$.skills.intelligence.xp.set(0)
+    }
+    state$.stepData.currSteps.set(0)
+    state$.skills.intelligence.level.set((v) => v + 1)            //increment skill level
+    const newIntelligenceCap = Math.round((cap * intmod.get()) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
+    state$.skills.intelligence.xpToLevel.set(newIntelligenceCap)    //setting the new xp requirement
+
+  }
+}
+
+function calcCurrency(steps) {
+  state$.currency.gold.set((prev) => prev + steps)
+  state$.currency.currStepToDia.set((prev) => prev + steps)
+  if (state$.currency.currStepToDia.get() >= state$.currency.stepToDia.get()) {
+    state$.currency.currStepToDia.set(0)
+    const overflow = state$.currency.currStepToDia.get() - state$.currency.stepToDia.get();
+    if (overflow > 0) {
+      state$.currency.currStepToDia.set(overflow)
+    } else {
+      state$.currency.diamonds.set((prev) => prev + 1)
+    }
   }
 }
 
