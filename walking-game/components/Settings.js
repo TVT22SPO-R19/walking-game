@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, Switch, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SettingsModal = ({ closeModal, backgroundColor }) => {
+const SettingsModal = ({ closeModal }) => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [darkmodeEnabled, setDarkmodeEnabled] = useState(true);
 
@@ -48,7 +48,7 @@ const SettingsModal = ({ closeModal, backgroundColor }) => {
   }, [soundEnabled, darkmodeEnabled]);
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <View style={styles.container}>
       <Text style={styles.title}>Settings Page</Text>
       <Button title="Close Settings" onPress={closeModal} />
       <View style={styles.setting}>

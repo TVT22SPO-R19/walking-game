@@ -4,13 +4,12 @@ import StepCounter from './components/StepCounter';
 import ItemsComponent from './components/ItemsComponent';
 import GameScreen from './components/gameScreen';
 import SettingsModal from './components/Settings';
+import ShopComponent from './components/shopComponent';
+import RandomItemView from './components/randomItemView';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
-import RandomItemView from './components/randomItemView';
 import { enableReactTracking } from "@legendapp/state/config/enableReactTracking";
 import { useState } from 'react';
-import ShopComponent from './components/shopComponent';
 // This makes React components automatically track get() calls to re-render
 enableReactTracking({ auto: true });
 
@@ -55,7 +54,7 @@ export default function App() {
           })}
         />
 
-        <Tab.Screen name="Store" component={Placeholder}
+        <Tab.Screen name="Store" component={ShopComponent}
           options={({ navigation }) => ({
             headerRight: () => (
               <TouchableOpacity
