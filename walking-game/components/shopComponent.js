@@ -1,42 +1,45 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { state$ } from './states';
+
 
 export default function ShopComponent() {
-  const [gold, setGold] = useState(100);
-  const [diamonds, setDiamonds] = useState(10);
-  const [euros, setEuros] = useState(20);
+  const gold = state$.currency.gold.get();                                              //Getting the current values from states.js
+  const diamonds = state$.currency.diamonds.get();                                      
+  const [euros, setEuros] = useState(20);                                               //and setting some values
   const [lootboxCount, setLootboxCount] = useState(0);
   const lootboxGoldPrice = 10;
   const lootboxDiamondPrice = 1;
 
-  // Function to handle purchase with gold
-  const handlePurchaseWithGold = () => {
+
+  const handlePurchaseWithGold = () => {                                                // Function to handle purchase with gold
     if (gold >= lootboxGoldPrice) {
-      setGold(gold - lootboxGoldPrice);
+      state$.currency.gold.set(gold - lootboxGoldPrice);
       setLootboxCount(lootboxCount + 1);
     } else {
       alert("You don't have enough gold to purchase a lootbox.");
     }
   };
 
-  // Function to handle purchase with diamonds
-  const handlePurchaseWithDiamonds = () => {
+
+  const handlePurchaseWithDiamonds = () => {                                      // Function to handle purchase with diamonds
     if (diamonds >= lootboxDiamondPrice) {
-      setDiamonds(diamonds - lootboxDiamondPrice);
+      state$.currency.diamonds.set(diamonds - lootboxDiamondPrice);
       setLootboxCount(lootboxCount + 1);
     } else {
       alert("You don't have enough diamonds to purchase a lootbox.");
     }
   };
 
+
   // Function to handle euro conversion to diamonds
   const handleEuroConversion = (euroAmount) => {
     const remainingEuros = euros - euroAmount;
     if (remainingEuros >= 0) {
-      const euroToDiamondConversionRate = 1;
+      const euroToDiamondConversionRate = 2;
       const diamondAmount = euroAmount * euroToDiamondConversionRate;
-      setEuros(remainingEuros); // Update euros with the remaining amount
-      setDiamonds(diamonds + diamondAmount);
+      setEuros(remainingEuros);
+      state$.currency.diamonds.set(diamonds + diamondAmount);
     } else {
       alert("Please spend more money on microtransactions. (Group 19 incorporated isn't liable for mental health and/or financial issues caused by spending money on our shop)");
     }
@@ -44,8 +47,8 @@ export default function ShopComponent() {
 
   // Function to reset state (for testing purposes)
   const handleReset = () => {
-    setGold(100);
-    setDiamonds(10);
+    state$.currency.gold.set(100);
+    state$.currency.diamonds.set(10);
     setEuros(20);
     setLootboxCount(0);
   };
@@ -86,17 +89,17 @@ export default function ShopComponent() {
           <TouchableOpacity
             style={[styles.euroConversionButton, { backgroundColor: 'green' }]}
             onPress={() => handleEuroConversion(5)}>
-            <Text style={styles.euroConversionButtonText}>5 diamonds for 5€</Text>
+            <Text style={styles.euroConversionButtonText}>Spend 5€ on Diamonds</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.euroConversionButton, { backgroundColor: 'green' }]}
             onPress={() => handleEuroConversion(10)}>
-            <Text style={styles.euroConversionButtonText}>10 diamonds for 10€</Text>
+            <Text style={styles.euroConversionButtonText}>Spend 10€ on Diamonds</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.euroConversionButton, { backgroundColor: 'green' }]}
             onPress={() => handleEuroConversion(20)}>
-            <Text style={styles.euroConversionButtonText}>20 diamonds for 20€</Text>
+            <Text style={styles.euroConversionButtonText}>Spend 20€ on Diamonds</Text>
           </TouchableOpacity>
         </View>
       </View>
