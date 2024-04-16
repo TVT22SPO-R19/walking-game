@@ -14,10 +14,11 @@ export default function App() {
     <View style={styles.container}>
       <Text>Walking game!</Text>
       {<StepCounter />}
-      {<GameScreen></GameScreen>}
       {<RandomItemView/>}
       {<ItemsComponent />}
-      {/*<ShopComponent />*/}
+      {<GameScreen />}
+      {<ShopComponent />}
+
 
       <StatusBar style="auto" />
     </View>
