@@ -10,12 +10,15 @@
   },
   "dependencies": {
     "@legendapp/state": "^2.1.8",
+    "@react-navigation/bottom-tabs": "^6.5.20",
+    "@react-navigation/native": "^6.1.17",
     "expo": "~50.0.13",
+    "expo-sensors": "~12.9.1",
     "expo-status-bar": "~1.11.1",
     "react": "18.2.0",
     "react-native": "0.73.5",
     "usehooks-ts": "^3.0.1",
-    "expo-sensors": "~12.9.1"
+    "@react-native-async-storage/async-storage": "1.21.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
