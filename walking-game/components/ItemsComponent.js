@@ -1,228 +1,227 @@
 import { useEffect, useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { state$ } from "./states";
+import itemDatabase from './itemDatabase';
 
-export default function ItemsComponent() {
 
-    allItemsDict = {
-        baseBoots: { name: "Really bad boots.", effect: { walkingMultiplier: 5 }, cost: 800 },
-        sunGlasses: { name: "Bad sunglasses.", effect: { walkingPower: 5 }, cost: 223 },
-        goodSunGlasses: { name: "Good sunglasses.", effect: { walkingPower: 1, walkingMultiplier: 1 }, cost: 1232 }
-
-    }
-
-    const [upgradeItemsDict, setUpgradeItemsDict] = useState({
-        baseBoots: { currentStats: {}, effect: { walkingMultiplier: 0.5 }, cost: 10, costMult: 1.2, level: 1 },
-        sunGlasses: { currentStats: {}, effect: { walkingPower: 0.5 }, cost: 10, costMult: 1.2, level: 1 },
-        goodSunGlasses: { currentStats: {}, effect: { walkingPower: 0.1, walkingMultiplier: 0.1 }, cost: 100, costMult: 1.1, level: 1 }
-    })
+export function initItems() {
 
     const [ownedItems, setOwnedItems] = useState([]);
 
-    const [resource, setResource] = useState(10000000); // Temporary for testing
+
+    const allItemsDict = itemDatabase();
+
+    const [upgradeItemsDict, setUpgradeItemsDict] = useState({
+
+    })
 
     useEffect(() => {
-        initializeItemData()
-
+        initializeItemData();
     }, []);
 
     //The following code is to initialize and load saved values from states. This code should only run at the start though it shouldnt cause problems if it ran again.
     function initializeItemData() {
         gottenData = state$.itemData.get();
-        console.log(gottenData);
-        const updatedUpgradeItemsDict = { ...upgradeItemsDict };
 
         for (const item in gottenData) {
-            addItemToInventory(item)
+            initStage = gottenData[item].init
+            if (initStage < gottenData[item].level) {
+                console.log("Init is smaller than level")
+                if (initStage == 0) {
+                    addItemToInventory(item);
+                    initStage = 1;
+                }
+                //I use curLevel to keep track how many upgrades it should given.
+                curLevel = gottenData[item].level;
 
-            curLevel = gottenData[item].level;
+                console.log(state$.itemData[item].get());
+                const currentItem = state$.itemData[item].get();
 
-            updatedUpgradeItemsDict[item].level = curLevel;
-            const currentItem = updatedUpgradeItemsDict[item];
+                console.log("current item:")
+                console.log(currentItem);
+                const itemEffects = allItemsDict[item].effect;
 
-            const itemEffects = upgradeItemsDict[item].effect;
-            curLevel--;
+                curLevel -= initStage;
 
-            for (const effectKey in itemEffects) {
+                for (const effectKey in itemEffects) {
 
-                if (itemEffects.hasOwnProperty(effectKey)) {
+                    if (itemEffects.hasOwnProperty(effectKey)) {
 
-                    const effectValue = itemEffects[effectKey];
+                        const effectValues = itemEffects[effectKey];
 
-                    if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
-                        currentItem.currentStats[effectKey] = 0;
+                        if (effectKey === 'baseMod') {
+                            console.log("Item had base modifier")
+                            for (const modKey in effectValues) {
+
+                                console.log("Item had " + modKey)
+        
+                                if (effectValues.hasOwnProperty(modKey)) {
+                                    addedValue = effectValues[modKey] * curLevel;
+
+                                    state$.modifiers[modKey].set(state$.modifiers[modKey].get() + addedValue);
+                                    currentItem.currentStats[effectKey][modKey] += addedValue; 
+                                    console.log("Item should have added " + addedValue);
+                                    console.log(currentItem);
+                                }
+                            }
+                        } else if (effectKey === 'skillMod') {
+                            console.log("Item had skill modifier")
+                            for (const skillKey in effectValues) {
+
+                                console.log("Item had " + skillKey)    
+    
+                                if (effectValues.hasOwnProperty(skillKey)) {
+                                    addedValue = effectValues[skillKey] * curLevel;
+                                    state$.skills[skillKey].power.set(state$.skills[skillKey].power.get() + addedValue );
+                                    currentItem.currentStats[effectKey][skillKey] += addedValue; 
+                                    console.log("Item should have added " + addedValue)
+
+                                }
+                            }
+                        }
+                        }
+                }
+                console.log("Current item:")
+                console.log(currentItem)
+                initStage = gottenData[item].level;
+                state$.itemData[item].init.set(initStage);
+                //state$.itemData[item].currentItem.set(currentItem)
+                const newState = {
+                    ...state$.itemData[item].get(), // Spread the existing state
+                    currentStats: {
+                      ...state$.itemData[item].currentStats.get(), // Spread the existing currentStats
+                      ...currentItem.currentStats // Spread the properties from currentItem's currentStats
                     }
-                    newValue = effectValue * curLevel;
-
-                    currentItem.currentStats[effectKey] += newValue;
-
-                    const prevStateMod = state$.modifiers[effectKey].get();
-                    const newStateMod = prevStateMod + effectValue;
-                    state$.modifiers[effectKey].set(newStateMod);
-                }
+                  };
+                  
+                state$.itemData[item].set(newState);
+                setUpgradeItemsDict(newState)
+                console.log("State logs below.")
+                console.log(state$.itemData[item].get());
+                console.log(state$.itemData[item].currentStats.baseMod.get());
             }
 
-            newCost = updatedUpgradeItemsDict[item].costMult ** curLevel;
-            updatedUpgradeItemsDict[item].cost *= newCost;
         }
-        setUpgradeItemsDict(updatedUpgradeItemsDict);  // The dictionary needs to use state otherwise it wont update
+
 
     }
-
-
-    // This function should only exist as a way to manage buying items. addItemToInventory should simply add an item with ID so we can add items without buying them with this.
-    const buyItem = (itemId) => {
-        const itemCost = allItemsDict[itemId].cost
-
-        if (resource > itemCost) {
-            console.log("Buying " + itemId);
-            setResource(resource - itemCost);
-            addItemToInventory(itemId);
-            console.log(resource)
-
-        } else {
-            console.log("Too poor.")
-        }
-    }
-
-    //Like previous function this only exists to manage buying upgrades.
-    const buyUpgrade = (itemId) => {
-        const upgradeCost = upgradeItemsDict[itemId].cost
-        if (resource > upgradeCost) {
-
-            console.log("Upgrading: " + itemId);
-            setResource(resource - upgradeCost);
-            console.log(resource);
-            upgradeItem(itemId);
-        } else {
-            console.log("Too poor.");
-        }
-    }
-
-
-    const upgradeItem = (itemId) => {
-
-        const updatedUpgradeItemsDict = { ...upgradeItemsDict }; //Variable to save all values
-        const currentItem = updatedUpgradeItemsDict[itemId];
-
-
-        updatedUpgradeItemsDict[itemId].cost *= updatedUpgradeItemsDict[itemId].costMult;
-        console.log("New cost: " + updatedUpgradeItemsDict[itemId].cost);
-
-        updatedUpgradeItemsDict[itemId].level++;
-        state$.itemData[itemId].level.set(updatedUpgradeItemsDict[itemId].level)
-
-        console.log(state$.itemData.get())
-
-        const itemEffects = upgradeItemsDict[itemId].effect;
-        for (const effectKey in itemEffects) {
-            if (itemEffects.hasOwnProperty(effectKey)) {
-
-                const effectValue = itemEffects[effectKey];
-
-                if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
-                    currentItem.currentStats[effectKey] = 0;
-                }
-
-                currentItem.currentStats[effectKey] += effectValue;
-
-                const prevStateMod = state$.modifiers[effectKey].get();
-                const newStateMod = prevStateMod + effectValue;
-                state$.modifiers[effectKey].set(newStateMod);
-            }
-        }
-        updatedUpgradeItemsDict[itemId] = currentItem;
-
-        setUpgradeItemsDict(updatedUpgradeItemsDict);  // The dictionary needs to use state otherwise it wont update
-    }
-
-
     const addItemToInventory = (itemId) => {
         if (ownedItems.includes(itemId)) {
-            
+
             console.log("Already owned.")
 
         } else {
 
             setOwnedItems(prevItems => [...prevItems, itemId]);
-            
+
             if (!state$.itemData.hasOwnProperty(itemId)) {
-                state$.itemData[itemId].set({level: 1})
+                state$.itemData[itemId].set({ level: 1, init: 1, currentStats: { baseMod: {}, skillMod:{} } })
             }
 
             const itemEffects = allItemsDict[itemId].effect;
 
-            const updatedUpgradeItemsDict = { ...upgradeItemsDict };
-            const currentItem = updatedUpgradeItemsDict[itemId];
-
+            const currentItem = state$.itemData[itemId].get();
+            console.log("CurrentItem in adding items: ")
+            console.log(currentItem);
             for (const effectKey in itemEffects) {
                 if (itemEffects.hasOwnProperty(effectKey)) {
-                    const effectValue = itemEffects[effectKey];
+                    const effectValues = itemEffects[effectKey];
 
+                    if (!currentItem.currentStats) {
+                        currentItem.currentStats = {}
+                    }
                     if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
-                        currentItem.currentStats[effectKey] = 0;
+                        currentItem.currentStats[effectKey] = {}
                     }
 
-                    currentItem.currentStats[effectKey] += effectValue;
 
-                    const prevStateMod = state$.modifiers[effectKey].get();
-                    const newStateMod = prevStateMod + effectValue;
-                    state$.modifiers[effectKey].set(newStateMod);
+                    // Check if it's baseMod or skillMod
+                    if (effectKey === 'baseMod') {
+                        for (const modKey in effectValues) {
+                            console.log("Item had " + modKey)
+                            if (!currentItem[effectKey]) { //Ensures that there isnt a null value
+                                currentItem.currentStats[effectKey][modKey] = 0;
+                            }
+    
+
+                            if (effectValues.hasOwnProperty(modKey)) {
+                                state$.modifiers[modKey].set(state$.modifiers[modKey].get() + effectValues[modKey]);
+                                currentItem.currentStats[effectKey][modKey] += effectValues[modKey]; 
+
+                            }
+                        }
+                    } else if (effectKey === 'skillMod') {
+                        for (const skillKey in effectValues) {
+                            console.log("Item had " + skillKey)
+                            if (!currentItem[effectKey]) { //Ensures that there isnt a null value
+                                currentItem.currentStats[effectKey][skillKey] = 0;
+                            }
+
+                            if (effectValues.hasOwnProperty(skillKey)) {
+                                state$.skills[skillKey].power.set(state$.skills[skillKey].power.get() + effectValues[skillKey]);
+                                currentItem.currentStats[effectKey][skillKey] += effectValues[skillKey]; 
+
+                            }
+                        }
+                    }
                 }
             }
-            updatedUpgradeItemsDict[itemId] = currentItem;
 
-            setUpgradeItemsDict(updatedUpgradeItemsDict); // The dictionary needs to use state otherwise it wont update
+            const newState = {
+                ...state$.itemData[itemId].get(), // Spread the existing state
+                currentStats: {
+                  ...state$.itemData[itemId].currentStats.get(), // Spread the existing currentStats
+                  ...currentItem.currentStats // Spread the properties from currentItem's currentStats
+                }
+              };
+            setUpgradeItemsDict(newState)
 
+            state$.itemData[itemId].set(newState);
         }
     };
 
-    const itemsToDisplay = Object.keys(allItemsDict).filter(itemKey => !ownedItems.includes(itemKey));
+    return { allItemsDict, initializeItemData }
+}
+
+export default function ItemsComponent() {
+
+    //Gets the dictionaries and array from init.
+    const { allItemsDict } = initItems();
+    const [itemValues, setItemValues] = useState(state$.itemData.get());
+    const [ownedItems, setOwnedItems] = useState([]);
+
+    let runInit = true;
+    useEffect(() => {
+        if (runInit) {
+            for (const item in state$.itemData.get()) {
+                if (!ownedItems.includes(item)) {
+                    setOwnedItems(prevItems => [...prevItems, item]);
+                }
+            }
+            runInit = false;
+        }
+        console.log("Item values below")
+        console.log(itemValues);
+    }, [itemValues])
 
     return (
         <View>
-            {itemsToDisplay.length > 0 && (
-                <View>
-                    <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Buy Items:</Text>
-                    {itemsToDisplay.map(itemKey => {
-
-                        const item = allItemsDict[itemKey];
-                        return (
-                            <View key={item.id}>
-                                <Text>{item.name}</Text>
-                                <Button
-                                    onPress={() => {
-                                        buyItem(itemKey);
-                                    }}
-                                    title={`Buy ${item.name}.`}
-                                />
-                            </View>
-                        );
-                    })}
-                </View>
-
-            )}
             {ownedItems.length > 0 && (
                 <View>
                     <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Owned Items:</Text>
                     {ownedItems.map(itemKey => {
-                        const item = allItemsDict[itemKey];
-                        const itemUpgrade = upgradeItemsDict[itemKey];
+                        const item = itemValues[itemKey];
+                        const itemId = allItemsDict[itemKey]
                         return (
-                            <View key={item.id}>
-                                <Text>Name: {item.name}</Text>
+                            <View key={itemId.name}>
+                                <Text>Name: {itemId.name}</Text>
                                 <Text>Effect:</Text>
-                                {Object.entries(itemUpgrade.currentStats).map(([effectKey, value]) => (
-                                    <Text key={effectKey}>{effectKey}: {value.toFixed(2)}</Text>
+                                {Object.entries(item.currentStats).map(([category, value]) => (
+                                    Object.entries(item.currentStats[category]).map(([keyEffect, keyValue]) => (
+                                        <Text key={keyEffect}>{keyEffect}: {keyValue.toFixed(2)}</Text>
+                                    ))
                                 ))}
-                                <Text> Level: {itemUpgrade.level}</Text>
-                                <Text> Cost: {itemUpgrade.cost.toFixed(2)}</Text>
-                                <Button
-                                    onPress={() => {
-                                        buyUpgrade(itemKey);
-                                    }}
-                                    title={`Upgrade ${item.name}.`}
-                                />
+                                <Text> Level: {item.level}</Text>
                             </View>
                         );
                     })}

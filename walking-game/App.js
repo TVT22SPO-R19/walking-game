@@ -7,8 +7,10 @@ import SettingsModal from './components/Settings';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
+import RandomItemView from './components/randomItemView';
 import { enableReactTracking } from "@legendapp/state/config/enableReactTracking";
 import { useState } from 'react';
+import ShopComponent from './components/shopComponent';
 // This makes React components automatically track get() calls to re-render
 enableReactTracking({ auto: true });
 
