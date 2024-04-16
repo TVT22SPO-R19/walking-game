@@ -44,8 +44,15 @@ export default RandomItemView = () => {
             state$.itemData[currentItem.id].set({ level: 1, init: 0 });
             initializeItemData();
             console.log(state$.itemData.get());
+        } else  if (state$.itemData.hasOwnProperty(currentItem.id)){
+            let curItem = { ...state$.itemData[currentItem.id].get() }
+            curItem.level++;
+            state$.itemData[currentItem.id].set( curItem );
+            initializeItemData();
+
+            console.log(state$.modifiers.get())
         } else {
-            console.log("Already owned.")
+            console.log("Shouldnt run.")
         }
     };
 
