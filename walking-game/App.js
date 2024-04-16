@@ -16,8 +16,7 @@ export default function App() {
       {<StepCounter />}
       {<GameScreen></GameScreen>}
       {<RandomItemView/>}
-
-      {/*<ItemsComponent />*/}
+      {<ItemsComponent />}
       {/*<ShopComponent />*/}
 
       <StatusBar style="auto" />
