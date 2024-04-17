@@ -6,20 +6,13 @@ import GameScreen from './components/gameScreen';
 import SettingsModal from './components/Settings';
 import ShopComponent from './components/shopComponent';
 import RandomItemView from './components/randomItemView';
+import LootboxScreen from './components/lootboxScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { enableReactTracking } from "@legendapp/state/config/enableReactTracking";
 import { useState } from 'react';
 // This makes React components automatically track get() calls to re-render
 enableReactTracking({ auto: true });
-
-function Placeholder() { //Placeholder screen, remove when all screens are implemented
-  return (
-    <View>
-      <Text>Hello!</Text>
-    </View>
-  )
-}
 
 const Tab = createBottomTabNavigator();
 
@@ -35,7 +28,7 @@ export default function App() {
           lazy: false
         }}
       >
-        <Tab.Screen name="Lootbox" component={Placeholder}
+        <Tab.Screen name="Lootbox" component={LootboxScreen}
           options={({ navigation }) => ({
             headerRight: () => (
               <TouchableOpacity
