@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Button, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { state$ } from "./states";
 import itemDatabase from './itemDatabase';
+import RandomItemView from './randomItemView';
+
 
 
 export function initItems() {
@@ -17,6 +19,7 @@ export function initItems() {
 
     useEffect(() => {
         initializeItemData();
+        
     }, []);
 
     //The following code is to initialize and load saved values from states. This code should only run at the start though it shouldnt cause problems if it ran again.
@@ -34,11 +37,8 @@ export function initItems() {
                 //I use curLevel to keep track how many upgrades it should given.
                 curLevel = gottenData[item].level;
 
-                console.log(state$.itemData[item].get());
                 const currentItem = state$.itemData[item].get();
 
-                console.log("current item:")
-                console.log(currentItem);
                 const itemEffects = allItemsDict[item].effect;
 
                 curLevel -= initStage;
@@ -50,36 +50,29 @@ export function initItems() {
                         const effectValues = itemEffects[effectKey];
 
                         if (effectKey === 'baseMod') {
-                            console.log("Item had base modifier")
                             for (const modKey in effectValues) {
 
-                                console.log("Item had " + modKey)
-        
+
                                 if (effectValues.hasOwnProperty(modKey)) {
                                     addedValue = effectValues[modKey] * curLevel;
 
                                     state$.modifiers[modKey].set(state$.modifiers[modKey].get() + addedValue);
-                                    currentItem.currentStats[effectKey][modKey] += addedValue; 
-                                    console.log("Item should have added " + addedValue);
-                                    console.log(currentItem);
+                                    currentItem.currentStats[effectKey][modKey] += addedValue;
                                 }
                             }
                         } else if (effectKey === 'skillMod') {
-                            console.log("Item had skill modifier")
                             for (const skillKey in effectValues) {
 
-                                console.log("Item had " + skillKey)    
-    
+
                                 if (effectValues.hasOwnProperty(skillKey)) {
                                     addedValue = effectValues[skillKey] * curLevel;
-                                    state$.skills[skillKey].power.set(state$.skills[skillKey].power.get() + addedValue );
-                                    currentItem.currentStats[effectKey][skillKey] += addedValue; 
-                                    console.log("Item should have added " + addedValue)
+                                    state$.skills[skillKey].power.set(state$.skills[skillKey].power.get() + addedValue);
+                                    currentItem.currentStats[effectKey][skillKey] += addedValue;
 
                                 }
                             }
                         }
-                        }
+                    }
                 }
                 console.log("Current item:")
                 console.log(currentItem)
@@ -89,20 +82,15 @@ export function initItems() {
                 const newState = {
                     ...state$.itemData[item].get(), // Spread the existing state
                     currentStats: {
-                      ...state$.itemData[item].currentStats.get(), // Spread the existing currentStats
-                      ...currentItem.currentStats // Spread the properties from currentItem's currentStats
+                        ...state$.itemData[item].currentStats.get(), // Spread the existing currentStats
+                        ...currentItem.currentStats // Spread the properties from currentItem's currentStats
                     }
-                  };
-                  
+                };
+
                 state$.itemData[item].set(newState);
                 setUpgradeItemsDict(newState)
-                console.log("State logs below.")
-                console.log(state$.itemData[item].get());
-                console.log(state$.itemData[item].currentStats.baseMod.get());
             }
-
         }
-
 
     }
     const addItemToInventory = (itemId) => {
@@ -115,14 +103,12 @@ export function initItems() {
             setOwnedItems(prevItems => [...prevItems, itemId]);
 
             if (!state$.itemData.hasOwnProperty(itemId)) {
-                state$.itemData[itemId].set({ level: 1, init: 1, currentStats: { baseMod: {}, skillMod:{} } })
+                state$.itemData[itemId].set({ level: 1, init: 1, currentStats: { baseMod: {}, skillMod: {} } })
             }
 
             const itemEffects = allItemsDict[itemId].effect;
 
             const currentItem = state$.itemData[itemId].get();
-            console.log("CurrentItem in adding items: ")
-            console.log(currentItem);
             for (const effectKey in itemEffects) {
                 if (itemEffects.hasOwnProperty(effectKey)) {
                     const effectValues = itemEffects[effectKey];
@@ -138,28 +124,26 @@ export function initItems() {
                     // Check if it's baseMod or skillMod
                     if (effectKey === 'baseMod') {
                         for (const modKey in effectValues) {
-                            console.log("Item had " + modKey)
                             if (!currentItem[effectKey]) { //Ensures that there isnt a null value
                                 currentItem.currentStats[effectKey][modKey] = 0;
                             }
-    
+
 
                             if (effectValues.hasOwnProperty(modKey)) {
                                 state$.modifiers[modKey].set(state$.modifiers[modKey].get() + effectValues[modKey]);
-                                currentItem.currentStats[effectKey][modKey] += effectValues[modKey]; 
+                                currentItem.currentStats[effectKey][modKey] += effectValues[modKey];
 
                             }
                         }
                     } else if (effectKey === 'skillMod') {
                         for (const skillKey in effectValues) {
-                            console.log("Item had " + skillKey)
                             if (!currentItem[effectKey]) { //Ensures that there isnt a null value
                                 currentItem.currentStats[effectKey][skillKey] = 0;
                             }
 
                             if (effectValues.hasOwnProperty(skillKey)) {
                                 state$.skills[skillKey].power.set(state$.skills[skillKey].power.get() + effectValues[skillKey]);
-                                currentItem.currentStats[effectKey][skillKey] += effectValues[skillKey]; 
+                                currentItem.currentStats[effectKey][skillKey] += effectValues[skillKey];
 
                             }
                         }
@@ -170,10 +154,10 @@ export function initItems() {
             const newState = {
                 ...state$.itemData[itemId].get(), // Spread the existing state
                 currentStats: {
-                  ...state$.itemData[itemId].currentStats.get(), // Spread the existing currentStats
-                  ...currentItem.currentStats // Spread the properties from currentItem's currentStats
+                    ...state$.itemData[itemId].currentStats.get(), // Spread the existing currentStats
+                    ...currentItem.currentStats // Spread the properties from currentItem's currentStats
                 }
-              };
+            };
             setUpgradeItemsDict(newState)
 
             state$.itemData[itemId].set(newState);
@@ -190,7 +174,17 @@ export default function ItemsComponent() {
     const [itemValues, setItemValues] = useState(state$.itemData.get());
     const [ownedItems, setOwnedItems] = useState([]);
 
-    let runInit = true;
+    const [runInit, setRunInit ]= useState(true);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setRunInit(true);
+
+        }, 1000); // Reload every second. For some reason trying to fuse these two useEffects breaks the code.
+
+        return () => clearInterval(interval); // Cleanup the interval on component unmount
+    }, []);
+
     useEffect(() => {
         if (runInit) {
             for (const item in state$.itemData.get()) {
@@ -198,14 +192,13 @@ export default function ItemsComponent() {
                     setOwnedItems(prevItems => [...prevItems, item]);
                 }
             }
-            runInit = false;
         }
-        console.log("Item values below")
-        console.log(itemValues);
-    }, [itemValues])
+        setRunInit(false)
+    }, [runInit])
 
     return (
-        <View>
+        
+        <ScrollView contentContainerStyle={styles.container}>
             {ownedItems.length > 0 && (
                 <View>
                     <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Owned Items:</Text>
@@ -213,7 +206,7 @@ export default function ItemsComponent() {
                         const item = itemValues[itemKey];
                         const itemId = allItemsDict[itemKey]
                         return (
-                            <View key={itemId.name}>
+                            <View key={itemId.name} style={styles.itemContainer}>
                                 <Text>Name: {itemId.name}</Text>
                                 <Text>Effect:</Text>
                                 {Object.entries(item.currentStats).map(([category, value]) => (
@@ -227,6 +220,29 @@ export default function ItemsComponent() {
                     })}
                 </View>
             )}
-        </View>
+
+            <RandomItemView></RandomItemView>
+        </ScrollView>
     )
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#f0f0f0', // light gray background
+        padding: 10,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    itemContainer: {
+        backgroundColor: '#e0e0e0', // gray background for item container
+        borderColor: 'orange', // orange border color
+        borderWidth: 2,
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 10,
+    },
+});

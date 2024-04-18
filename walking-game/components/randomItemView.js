@@ -4,7 +4,6 @@ import { initItems } from './ItemsComponent';
 import { state$ } from './states';
 import itemDatabase from './itemDatabase';
 
-
 export default RandomItemView = () => {
 
     const [currentItem, setCurrentItem] = useState(null);
@@ -39,20 +38,25 @@ export default RandomItemView = () => {
         return () => clearInterval(intervalId);
     }, []);
     const handleBuy = () => {
-
-        if (!state$.itemData.hasOwnProperty(currentItem.id)) {
-            state$.itemData[currentItem.id].set({ level: 1, init: 0 });
-            initializeItemData();
-            console.log(state$.itemData.get());
-        } else  if (state$.itemData.hasOwnProperty(currentItem.id)){
-            let curItem = { ...state$.itemData[currentItem.id].get() }
-            curItem.level++;
-            state$.itemData[currentItem.id].set( curItem );
-            initializeItemData();
-
-            console.log(state$.modifiers.get())
+        itemCost = allItemsDict[currentItem.id].cost;
+        if (true) {
+            if (!state$.itemData.hasOwnProperty(currentItem.id)) {
+                state$.itemData[currentItem.id].set({ level: 1, init: 0 });
+                initializeItemData();
+                console.log(state$.itemData.get());
+            } else if (state$.itemData.hasOwnProperty(currentItem.id)) {
+                let curItem = { ...state$.itemData[currentItem.id].get() }
+                curItem.level++;
+                state$.itemData[currentItem.id].set(curItem);
+                initializeItemData();
+    
+                console.log(state$.modifiers.get())
+            } else {
+                console.log("Shouldnt run.")
+            }
+    
         } else {
-            console.log("Shouldnt run.")
+            console.log("No money")
         }
     };
 
@@ -73,6 +77,7 @@ export default RandomItemView = () => {
                             </View>
                         ))}
                     </View>
+                    <Text>Cost: {allItemsDict[currentItem.id].cost}</Text>
                     <Button title="Buy" onPress={handleBuy} />
                 </>
             )}
