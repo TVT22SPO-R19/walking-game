@@ -45,7 +45,7 @@ const LootboxScreen = () => {
       state$.currency.diamonds.set(diamonds - lootboxDiamondPrice);
       state$.lootbox.lootboxCount.set(lootboxCount + 1);
     } else {
-      alert("You don't have enough diamonds to purchase a lootbox.");
+      Alert.alert("You don't have enough diamonds to purchase a lootbox.");
     }
   };
 
