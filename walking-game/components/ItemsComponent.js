@@ -198,6 +198,7 @@ export default function ItemsComponent() {
                         const itemId = allItemsDict[itemKey]
                         return (
                             <View key={itemId.name} style={styles.itemContainer}>
+                                <Text>Rarity: {itemId.rarity}</Text>
                                 <Text>Name: {itemId.name}</Text>
                                 <Text>Effect:</Text>
                                 {Object.entries(item.currentStats).map(([category, value]) => (
@@ -205,7 +206,7 @@ export default function ItemsComponent() {
                                         <Text key={keyEffect}>{effectDescriptions[keyEffect]}: {keyValue.toFixed(2)}</Text>
                                     ))
                                 ))}
-                                <Text> Level: {item.level}</Text>
+                                <Text>Level: {item.level}</Text>
                             </View>
                         );
                     })}
