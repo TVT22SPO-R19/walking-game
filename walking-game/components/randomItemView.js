@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { initItems } from './ItemsComponent';
 import { state$ } from './states';
 import itemDatabase from './itemDatabase';
+import { itemDefinations } from './itemDatabase';
 
 export default RandomItemView = () => {
 
     const [currentItem, setCurrentItem] = useState(null);
     const [intervalId, setIntervalId] = useState(null);
     const allItemsDict = itemDatabase(); //Decided to move items to own component so its easier to edit in the future.
+    const effectDescriptions = itemDefinations(); //Has descriptions for all of the effects making it easier to read for user and for us to edit.
 
     //The function that needs to be run to init items. 
     const { initializeItemData } = initItems();
@@ -71,17 +73,30 @@ export default RandomItemView = () => {
                             <View key={key}>
                                 <View>
                                     {Object.keys(currentItem.effect[key]).map((subKey) => (
-                                        <Text key={subKey}>{subKey}: {currentItem.effect[key][subKey]}</Text>
+                                        <Text key={subKey}>{effectDescriptions[subKey]}: {currentItem.effect[key][subKey]}</Text>
                                     ))}
                                 </View>
                             </View>
                         ))}
                     </View>
-                    <Text>Cost: {allItemsDict[currentItem.id].cost}</Text>
-                    <Button title="Buy" onPress={handleBuy} />
+                    <TouchableOpacity style={styles.Button} onPress={handleBuy}>
+                        <Text style={styles.buttonText}>Buy</Text>
+                    </TouchableOpacity>
                 </>
             )}
         </View>
     );
 };
 
+const styles = StyleSheet.create({
+Button: {
+    backgroundColor: 'blue',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+});
