@@ -1,39 +1,74 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { state$ } from './states';
+import itemDatabase from './itemDatabase';
+import RandomItemView from './randomItemView'; 
+import { initItems } from './ItemsComponent';
+
 
 
 export default function ShopComponent() {
   const gold = state$.currency.gold.get();                                              //Getting the current values from states.js
   const diamonds = state$.currency.diamonds.get();                                      
   const [euros, setEuros] = useState(20);                                               //and setting some values
-  const [lootboxCount, setLootboxCount] = useState(0);
-  const lootboxGoldPrice = 10;
-  const lootboxDiamondPrice = 1;
+  const lootboxCount = state$.lootbox.lootboxCount.get();
+  const lootboxGoldPrice = state$.lootbox.lootboxGoldPrice.get();
+  const lootboxDiamondPrice = state$.lootbox.lootboxDiamondPrice.get();
+  const bundleItems = itemDatabase();
+
+  //The function that needs to be run to init items. 
+  const { initializeItemData } = initItems();
 
 
-  const handlePurchaseWithGold = () => {                                                // Function to handle purchase with gold
+  const handlePurchaseBundle = () => {                                                //Function to purchase a starter bundle
+    const bundlePrice = bundleItems.itemBundle.cost;
+    
+    if (gold >= bundlePrice) {
+      state$.currency.gold.set(gold - bundlePrice);
+      alert('Bundle purchased successfully!');
+      
+      // Add items from the bundle to the inventory
+      bundleItems.itemBundle.items.forEach((itemId) => {
+        if (!state$.itemData.hasOwnProperty(itemId)) {
+          state$.itemData[itemId].set({ level: 1, init: 0 });
+          initializeItemData();
+        } else {
+          let curItem = { ...state$.itemData[itemId].get() };
+          curItem.level++;
+          state$.itemData[itemId].set(curItem);
+          initializeItemData();
+          console.log(state$.modifiers.get())
+
+        }
+      });
+    } else {
+      alert("You don't have enough diamonds to purchase the bundle.");
+    }
+  };
+
+
+  const handlePurchaseWithGold = () => {                                                // Function to handle lootbox purchase with gold
     if (gold >= lootboxGoldPrice) {
       state$.currency.gold.set(gold - lootboxGoldPrice);
-      setLootboxCount(lootboxCount + 1);
+      state$.lootbox.lootboxCount.set(lootboxCount + 1);
     } else {
       alert("You don't have enough gold to purchase a lootbox.");
     }
   };
 
 
-  const handlePurchaseWithDiamonds = () => {                                      // Function to handle purchase with diamonds
+  const handlePurchaseWithDiamonds = () => {                                      // Function to handle lootbox purchase with diamonds
     if (diamonds >= lootboxDiamondPrice) {
       state$.currency.diamonds.set(diamonds - lootboxDiamondPrice);
-      setLootboxCount(lootboxCount + 1);
+      state$.lootbox.lootboxCount.set(lootboxCount + 1);
     } else {
       alert("You don't have enough diamonds to purchase a lootbox.");
     }
   };
 
 
-  // Function to handle euro conversion to diamonds
-  const handleEuroConversion = (euroAmount) => {
+  
+  const handleEuroConversion = (euroAmount) => {                                // Function to handle converting euros into diamonds
     const remainingEuros = euros - euroAmount;
     if (remainingEuros >= 0) {
       const euroToDiamondConversionRate = 2;
@@ -47,10 +82,9 @@ export default function ShopComponent() {
 
   // Function to reset state (for testing purposes)
   const handleReset = () => {
-    state$.currency.gold.set(100);
+    state$.currency.gold.set(1000);
     state$.currency.diamonds.set(10);
     setEuros(20);
-    setLootboxCount(0);
   };
 
   return (
@@ -61,12 +95,21 @@ export default function ShopComponent() {
         <Text style={styles.currencyText}>Euros: {euros} €</Text>
       </View>
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Buy Item</Text>
+        <Text style={styles.sectionTitle}>Item Bundle</Text>
+        <Text style={styles.bundleDescription}>Bundle includes:</Text>
+        {bundleItems.itemBundle.items.map(itemId => (
+          <Text key={itemId}>{bundleItems[itemId].name}</Text>
+        ))}
+        <Text style={styles.bundlePrice}>Price: {bundleItems.itemBundle.cost} Diamonds</Text>
         <TouchableOpacity
-          style={styles.buyItemButton}
-          onPress={() => alert("Placeholder: Buy Item")}>
-          <Text style={styles.buyItemButtonText}>Buy</Text>
+          style={styles.buyBundleButton}
+          onPress={handlePurchaseBundle}>
+          <Text style={styles.buyBundleButtonText}>Buy Bundle</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionTitle}>Buy Random Item</Text>
+        <RandomItemView />
       </View>
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Lootbox</Text>
@@ -140,8 +183,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  buyBundleButton: {
+    backgroundColor: 'lightgreen',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
   buyItemButton: {
-    backgroundColor: 'blue',
+    backgroundColor: 'lightgreen',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
