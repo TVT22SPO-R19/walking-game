@@ -1,25 +1,18 @@
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Button } from 'react-native';
 import { state$ } from "./states";
 import itemDatabase from './itemDatabase';
-import RandomItemView from './randomItemView';
-
+import { itemDefinations } from './itemDatabase';
 
 
 export function initItems() {
 
     const [ownedItems, setOwnedItems] = useState([]);
 
-
     const allItemsDict = itemDatabase();
-
-    const [upgradeItemsDict, setUpgradeItemsDict] = useState({
-
-    })
 
     useEffect(() => {
         initializeItemData();
-        
     }, []);
 
     //The following code is to initialize and load saved values from states. This code should only run at the start though it shouldnt cause problems if it ran again.
@@ -52,7 +45,6 @@ export function initItems() {
                         if (effectKey === 'baseMod') {
                             for (const modKey in effectValues) {
 
-
                                 if (effectValues.hasOwnProperty(modKey)) {
                                     addedValue = effectValues[modKey] * curLevel;
 
@@ -62,7 +54,6 @@ export function initItems() {
                             }
                         } else if (effectKey === 'skillMod') {
                             for (const skillKey in effectValues) {
-
 
                                 if (effectValues.hasOwnProperty(skillKey)) {
                                     addedValue = effectValues[skillKey] * curLevel;
@@ -78,7 +69,7 @@ export function initItems() {
                 console.log(currentItem)
                 initStage = gottenData[item].level;
                 state$.itemData[item].init.set(initStage);
-                //state$.itemData[item].currentItem.set(currentItem)
+
                 const newState = {
                     ...state$.itemData[item].get(), // Spread the existing state
                     currentStats: {
@@ -88,7 +79,6 @@ export function initItems() {
                 };
 
                 state$.itemData[item].set(newState);
-                setUpgradeItemsDict(newState)
             }
         }
 
@@ -99,7 +89,7 @@ export function initItems() {
             console.log("Already owned.")
 
         } else {
-
+            console.log("Adding items.")
             setOwnedItems(prevItems => [...prevItems, itemId]);
 
             if (!state$.itemData.hasOwnProperty(itemId)) {
@@ -158,7 +148,6 @@ export function initItems() {
                     ...currentItem.currentStats // Spread the properties from currentItem's currentStats
                 }
             };
-            setUpgradeItemsDict(newState)
 
             state$.itemData[itemId].set(newState);
         }
@@ -169,12 +158,14 @@ export function initItems() {
 
 export default function ItemsComponent() {
 
-    //Gets the dictionaries and array from init.
-    const { allItemsDict } = initItems();
+
+    const { allItemsDict } = initItems(); //Decided to move items to own component so its easier to edit in the future.
+    const effectDescriptions = itemDefinations(); //Has descriptions for all of the effects making it easier to read for user and for us to edit.
+
     const [itemValues, setItemValues] = useState(state$.itemData.get());
     const [ownedItems, setOwnedItems] = useState([]);
 
-    const [runInit, setRunInit ]= useState(true);
+    const [runInit, setRunInit] = useState(true);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -185,8 +176,8 @@ export default function ItemsComponent() {
         return () => clearInterval(interval); // Cleanup the interval on component unmount
     }, []);
 
-    useEffect(() => {
-        if (runInit) {
+    useEffect(() => { //Simply checks the state for new items and add them to owned to show them in items view. Also loads every item to owned items when starting up the game.
+        if (runInit) { 
             for (const item in state$.itemData.get()) {
                 if (!ownedItems.includes(item)) {
                     setOwnedItems(prevItems => [...prevItems, item]);
@@ -197,7 +188,7 @@ export default function ItemsComponent() {
     }, [runInit])
 
     return (
-        
+
         <ScrollView contentContainerStyle={styles.container}>
             {ownedItems.length > 0 && (
                 <View>
@@ -207,21 +198,20 @@ export default function ItemsComponent() {
                         const itemId = allItemsDict[itemKey]
                         return (
                             <View key={itemId.name} style={styles.itemContainer}>
+                                <Text>Rarity: {itemId.rarity}</Text>
                                 <Text>Name: {itemId.name}</Text>
                                 <Text>Effect:</Text>
                                 {Object.entries(item.currentStats).map(([category, value]) => (
                                     Object.entries(item.currentStats[category]).map(([keyEffect, keyValue]) => (
-                                        <Text key={keyEffect}>{keyEffect}: {keyValue.toFixed(2)}</Text>
+                                        <Text key={keyEffect}>{effectDescriptions[keyEffect]}: {keyValue.toFixed(2)}</Text>
                                     ))
                                 ))}
-                                <Text> Level: {item.level}</Text>
+                                <Text>Level: {item.level}</Text>
                             </View>
                         );
                     })}
                 </View>
             )}
-
-            <RandomItemView></RandomItemView>
         </ScrollView>
     )
 }
