@@ -78,6 +78,7 @@ export function itemDefinations() {
         stamina: "Stamina power",
         strenght: "Strenght power",
         agility: "Agility power",
+        intelligence: "Intelligence power",
         // Add more descriptions as needed
     };
 
