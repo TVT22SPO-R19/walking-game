@@ -1,4 +1,20 @@
 import { observable, computed } from "@legendapp/state";
+import { configureObservablePersistence } from '@legendapp/state/persist'
+import { persistObservable } from '@legendapp/state/persist'
+import { ObservablePersistAsyncStorage } from '@legendapp/state/persist-plugins/async-storage'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Global configuration
+configureObservablePersistence({
+    // Use AsyncStorage in React Native
+    pluginLocal: ObservablePersistAsyncStorage,
+    localOptions: {
+        asyncStorage: {
+            // The AsyncStorage plugin needs to be given the implementation of AsyncStorage
+            AsyncStorage
+        }
+    }
+})
 
 export const state$ = observable({
     modifiers: {
@@ -52,6 +68,10 @@ export const state$ = observable({
 
     }
 
+})
+
+persistObservable(state$, {
+    local: 'state' // Unique name
 })
 
 export const walkingResult = computed(() => 
