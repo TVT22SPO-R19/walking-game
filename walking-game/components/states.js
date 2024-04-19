@@ -37,6 +37,11 @@ export const state$ = observable({
     },
 
     itemData: {
+        /*badTowel: 
+        {
+            level: 1, 
+            init: 0
+        }*/
 
     },
 
