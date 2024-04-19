@@ -66,6 +66,13 @@ export const state$ = observable({
         currStepToDia: 0,
         stepToDia: 1000
 
+    },
+
+    lootbox: {
+        lootboxCount: 0,
+        lootboxGoldPrice: 10,
+        lootboxDiamondPrice: 1
+
     }
 
 })
