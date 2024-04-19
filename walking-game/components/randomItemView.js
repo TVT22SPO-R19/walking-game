@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { initItems } from './ItemsComponent';
 import { state$ } from './states';
 import itemDatabase from './itemDatabase';
@@ -77,11 +77,24 @@ export default RandomItemView = () => {
                             </View>
                         ))}
                     </View>
-                    <Text>Cost: {allItemsDict[currentItem.id].cost}</Text>
-                    <Button title="Buy" onPress={handleBuy} />
+                    <TouchableOpacity style={styles.Button} onPress={handleBuy}>
+                        <Text style={styles.buttonText}>Buy</Text>
+                    </TouchableOpacity>
                 </>
             )}
         </View>
     );
 };
 
+const styles = StyleSheet.create({
+Button: {
+    backgroundColor: 'blue',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+});
