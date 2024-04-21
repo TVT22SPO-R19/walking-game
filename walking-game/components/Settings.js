@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, Switch, StyleSheet } from 'react-native';
+import { View, Text, Button, Switch, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/MaterialIcons'
+import { state$ } from './states';
 
-const SettingsModal = ({ closeModal }) => {
+const SettingsModal = ({ closeModal, backgroundColor }) => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [darkmodeEnabled, setDarkmodeEnabled] = useState(true);
 
@@ -48,22 +50,36 @@ const SettingsModal = ({ closeModal }) => {
   }, [soundEnabled, darkmodeEnabled]);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Settings Page</Text>
-      <Button title="Close Settings" onPress={closeModal} />
-      <View style={styles.setting}>
-        <Text>Sound:</Text>
-        <Switch
-          value={soundEnabled}
-          onValueChange={toggleSound}
-        />
-      </View>
-      <View style={styles.setting}>
-        <Text>Dark Mode:</Text>
-        <Switch
-          value={darkmodeEnabled}
-          onValueChange={toggleDarkmode}
-        />
+    <View style={[styles.container, { backgroundColor: backgroundColor }]}>
+      <View style={[styles.background, { backgroundColor: backgroundColor }]}>
+        <View style={styles.setting}>
+          <Text style={styles.title}>Settings</Text>
+          <TouchableOpacity onPress={closeModal}>
+            <Icon name='close' size={40} />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.setting}>
+          <Text>Sound:</Text>
+          <Switch
+            value={soundEnabled}
+            onValueChange={toggleSound}
+          />
+        </View>
+        <View style={styles.setting}>
+          <Text>Dark Mode:</Text>
+          <Switch
+            value={darkmodeEnabled}
+            onValueChange={toggleDarkmode}
+          />
+        </View>
+        <Text style={styles.title}>Stats</Text>
+        <Text>Total steps taken: {state$.stepData.totalSteps.get()}</Text>
+        <Text>Walking multiplier: {state$.modifiers.walkingMultiplier.get()}</Text>
+        <Text>Walking power: {state$.modifiers.walkingPower.get()}</Text>
+        <Text>Strenght power: {state$.skills.strength.power.get()}</Text>
+        <Text>Agility power: {state$.skills.agility.power.get()}</Text>
+        <Text>Stamina power: {state$.skills.stamina.power.get()}</Text>
+        <Text>intelligence power: {state$.skills.intelligence.power.get()}</Text>
       </View>
     </View>
   );
@@ -74,16 +90,17 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)'
+  },
+  background: {
+    padding: 40
   },
   title: {
     fontSize: 24,
-    marginBottom: 20,
   },
   setting: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginVertical: 10,
   },
 });
 

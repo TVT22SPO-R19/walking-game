@@ -78,7 +78,7 @@ export const state$ = observable({
 })
 
 persistObservable(state$, {
-    local: 'state' // Unique name
+    local: 'state'
 })
 
 export const walkingResult = computed(() => 
