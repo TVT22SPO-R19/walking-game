@@ -3,12 +3,14 @@ import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { initItems } from './ItemsComponent';
 import { state$ } from './states';
 import itemDatabase from './itemDatabase';
+import { itemDefinations } from './itemDatabase';
 
 export default RandomItemView = () => {
 
     const [currentItem, setCurrentItem] = useState(null);
     const [intervalId, setIntervalId] = useState(null);
     const allItemsDict = itemDatabase(); //Decided to move items to own component so its easier to edit in the future.
+    const effectDescriptions = itemDefinations(); //Has descriptions for all of the effects making it easier to read for user and for us to edit.
 
     //The function that needs to be run to init items. 
     const { initializeItemData } = initItems();
@@ -17,7 +19,7 @@ export default RandomItemView = () => {
         // Function to select a random item from allItemsDict. Items require the key restricted with the value shop. 
         const selectRandomItem = () => {
             const filteredItems = Object.entries(allItemsDict)
-                .filter(([id, item]) => item.restricted === "shop")
+                //.filter(([id, item]) => item.restricted.includes("shop"))
                 .reduce((obj, [id, item]) => {
                     obj[id] = { ...item, id };
                     return obj;
@@ -39,7 +41,12 @@ export default RandomItemView = () => {
     }, []);
     const handleBuy = () => {
         itemCost = allItemsDict[currentItem.id].cost;
-        if (true) {
+        const gold = state$.currency.gold.get();
+
+        if (gold >= itemCost) {
+            state$.currency.gold.set(gold - itemCost);
+
+        //if (true) {
             if (!state$.itemData.hasOwnProperty(currentItem.id)) {
                 state$.itemData[currentItem.id].set({ level: 1, init: 0 });
                 initializeItemData();
@@ -56,6 +63,7 @@ export default RandomItemView = () => {
             }
     
         } else {
+            alert("You don't have enough gold.")
             console.log("No money")
         }
     };
@@ -71,14 +79,15 @@ export default RandomItemView = () => {
                             <View key={key}>
                                 <View>
                                     {Object.keys(currentItem.effect[key]).map((subKey) => (
-                                        <Text key={subKey}>{subKey}: {currentItem.effect[key][subKey]}</Text>
+                                        <Text key={subKey}>{effectDescriptions[subKey]}: {currentItem.effect[key][subKey]}</Text>
                                     ))}
                                 </View>
                             </View>
                         ))}
                     </View>
+                    <Text>Price: {allItemsDict[currentItem.id].cost} Gold</Text>
                     <TouchableOpacity style={styles.Button} onPress={handleBuy}>
-                        <Text style={styles.buttonText}>Buy</Text>
+                        <Text style={styles.buttonText}>Buy with Gold</Text>
                     </TouchableOpacity>
                 </>
             )}
@@ -88,13 +97,12 @@ export default RandomItemView = () => {
 
 const styles = StyleSheet.create({
 Button: {
-    backgroundColor: 'blue',
+    backgroundColor: 'gold',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
     fontWeight: 'bold',
   },
 });
