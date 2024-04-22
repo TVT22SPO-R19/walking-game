@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, Button } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { state$ } from "./states";
 import itemDatabase from './itemDatabase';
 import { itemDefinations } from './itemDatabase';
@@ -166,6 +167,8 @@ export default function ItemsComponent() {
     const [ownedItems, setOwnedItems] = useState([]);
 
     const [runInit, setRunInit] = useState(true);
+    const [selectedRarity, setSelectedRarity] = useState('All'); // State to track the selected rarity
+    const [selectedEffect, setSelectedEffect] = useState('All'); // State to track the selected effect category
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -177,7 +180,7 @@ export default function ItemsComponent() {
     }, []);
 
     useEffect(() => { //Simply checks the state for new items and add them to owned to show them in items view. Also loads every item to owned items when starting up the game.
-        if (runInit) { 
+        if (runInit) {
             for (const item in state$.itemData.get()) {
                 if (!ownedItems.includes(item)) {
                     setOwnedItems(prevItems => [...prevItems, item]);
@@ -187,15 +190,75 @@ export default function ItemsComponent() {
         setRunInit(false)
     }, [runInit])
 
+    const filterItemsByRarityAndEffect = () => {
+        let filteredItems = ownedItems;
+
+        // Filter by rarity
+        if (selectedRarity !== 'All') {
+            filteredItems = filteredItems.filter(itemKey => {
+                const itemId = allItemsDict[itemKey];
+                return itemId.rarity === selectedRarity;
+            });
+        }
+
+        // Filter by effect category
+        if (selectedEffect !== 'All') {
+            filteredItems = filteredItems.filter(itemKey => {
+                const item = itemValues[itemKey];
+                // Check if the item has skillMod and if the selected effect is present in skillMod
+                const hasSkillMod = item.currentStats && item.currentStats.skillMod && item.currentStats.skillMod[selectedEffect] !== undefined;
+                // Check if the item has baseMod and if the selected effect is present in baseMod
+                const hasBaseMod = item.currentStats && item.currentStats.baseMod && item.currentStats.baseMod[selectedEffect] !== undefined;
+                // Include the item in the filtered list if the selected effect is found in either skillMod or baseMod
+                return hasSkillMod || hasBaseMod;
+            });
+        }
+        filteredItems.sort((itemKeyA, itemKeyB) => {
+            const itemA = itemValues[itemKeyA];
+            const itemB = itemValues[itemKeyB];
+            return itemB.level - itemA.level;
+        });
+
+        return filteredItems;
+    };
+
     return (
 
         <ScrollView contentContainerStyle={styles.container}>
-            {ownedItems.length > 0 && (
+            <View style={styles.filterContainer}>
+                <View style={styles.pickerContainer}>
+                    <Text style={styles.filterText}>Filter by Rarity:</Text>
+                    <Picker
+                        selectedValue={selectedRarity}
+                        style={styles.picker}
+                        onValueChange={(itemValue, itemIndex) => setSelectedRarity(itemValue)}
+                    >
+                        <Picker.Item label="All" value="All" />
+                        <Picker.Item label="Common" value="Common" />
+                        <Picker.Item label="Rare" value="Rare" />
+                        <Picker.Item label="Legendary" value="Legendary" />
+                    </Picker>
+                </View>
+                <View style={styles.pickerContainer}>
+                    <Text style={styles.filterText}>Filter by Effect:</Text>
+                    <Picker
+                        selectedValue={selectedEffect}
+                        style={styles.picker}
+                        onValueChange={(itemValue, itemIndex) => setSelectedEffect(itemValue)}
+                    >
+                        <Picker.Item label="All" value="All" />
+                        {Object.keys(effectDescriptions).map(effect => (
+                            <Picker.Item key={effect} label={effectDescriptions[effect]} value={effect} />
+                        ))}
+                    </Picker>
+                </View>
+            </View>
+            {filterItemsByRarityAndEffect().length > 0 && (
                 <View>
                     <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Owned Items:</Text>
-                    {ownedItems.map(itemKey => {
+                    {filterItemsByRarityAndEffect().map(itemKey => {
                         const item = itemValues[itemKey];
-                        const itemId = allItemsDict[itemKey]
+                        const itemId = allItemsDict[itemKey];
                         return (
                             <View key={itemId.name} style={styles.itemContainer}>
                                 <Text>Rarity: {itemId.rarity}</Text>
@@ -218,14 +281,37 @@ export default function ItemsComponent() {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: '#f0f0f0', // light gray background
-        padding: 10,
+        flexGrow: 1,
+        marginLeft: 10,
+        marginRight: 10,
     },
-    sectionTitle: {
+    filterContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        backgroundColor: '#e0e0e0', // gray background for item container
+        borderColor: 'orange', // orange border color
+        borderWidth: 2,
+        borderRadius: 5,
+        padding: 10,
+        marginBottom: 10,
+        
+    },
+    pickerContainer: {
+        flex: 1,
+        marginRight: 10,
+    },
+    filterText: {
         fontSize: 20,
         fontWeight: 'bold',
-        marginBottom: 10,
+        color: 'orange',
+        marginBottom: 5,
+    },
+    picker: {
+        height: 50,
+        backgroundColor: '#a8a8a8',
+        color: 'orange',
+        borderWidth: 2,
+        borderColor: 'orange',
     },
     itemContainer: {
         backgroundColor: '#e0e0e0', // gray background for item container
