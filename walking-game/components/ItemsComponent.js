@@ -254,7 +254,7 @@ export default function ItemsComponent() {
                 </View>
             </View>
             {filterItemsByRarityAndEffect().length > 0 && (
-                <View>
+                <View style={styles.allItems}>
                     <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Owned Items:</Text>
                     {filterItemsByRarityAndEffect().map(itemKey => {
                         const item = itemValues[itemKey];
@@ -282,40 +282,50 @@ export default function ItemsComponent() {
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
-        marginLeft: 10,
+        backgroundColor: '#313338',
+    },
+    allItems: {
+        marginLeft:10,
         marginRight: 10,
+        backgroundColor: '#656565',
+        padding: 10,
+        borderColor: '#C95B0C', // orange border color
+        borderWidth: 2,
+        borderRadius: 5,
+
     },
     filterContainer: {
+    
         flexDirection: 'row',
         justifyContent: 'space-between',
         backgroundColor: '#e0e0e0', // gray background for item container
-        borderColor: 'orange', // orange border color
+        borderColor: '#C95B0C', // orange border color
         borderWidth: 2,
         borderRadius: 5,
         padding: 10,
-        marginBottom: 10,
-        
+        margin:10,
     },
     pickerContainer: {
         flex: 1,
         marginRight: 10,
+        marginLeft:10,
     },
     filterText: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: 'orange',
+        color: '#C95B0C',
         marginBottom: 5,
     },
     picker: {
         height: 50,
         backgroundColor: '#a8a8a8',
-        color: 'orange',
+        color: '#C95B0C',
         borderWidth: 2,
-        borderColor: 'orange',
+        borderColor: '#C95B0C',
     },
     itemContainer: {
         backgroundColor: '#e0e0e0', // gray background for item container
-        borderColor: 'orange', // orange border color
+        borderColor: '#C95B0C', // orange border color
         borderWidth: 2,
         borderRadius: 5,
         padding: 10,
