@@ -1,85 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, Switch, StyleSheet, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, Switch, StyleSheet, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import { state$ } from './states';
 
-const SettingsModal = ({ closeModal, backgroundColor }) => {
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [darkmodeEnabled, setDarkmodeEnabled] = useState(true);
-
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
-    try {
-      const soundSetting = await AsyncStorage.getItem('soundEnabled');
-      const darkmodeSetting = await AsyncStorage.getItem('darkmodeEnabled');
-
-      if (soundSetting !== null) {
-        setSoundEnabled(JSON.parse(soundSetting));
-      }
-      if (darkmodeSetting !== null) {
-        setDarkmodeEnabled(JSON.parse(darkmodeSetting));
-      }
-    } catch (error) {
-      console.error('Error loading settings:', error);
-    }
-  };
-
-  const saveSettings = async () => {
-    try {
-      await AsyncStorage.setItem('soundEnabled', JSON.stringify(soundEnabled));
-      await AsyncStorage.setItem('darkmodeEnabled', JSON.stringify(darkmodeEnabled));
-    } catch (error) {
-      console.error('Error saving settings:', error);
-    }
-  };
+const SettingsModal = ({ closeModal, primaryColor }) => {
+  const soundEnabled = state$.settings.soundEnabled.get();
+  const musicEnabled = state$.settings.musicEnabled.get();
 
   const toggleSound = () => {
-    setSoundEnabled(!soundEnabled);
+    state$.settings.soundEnabled.set(!soundEnabled);
   };
 
-  const toggleDarkmode = () => {
-    setDarkmodeEnabled(!darkmodeEnabled);
+  const toggleMusic = () => {
+    state$.settings.musicEnabled.set(!musicEnabled);
   };
-
-  useEffect(() => {
-    saveSettings();
-  }, [soundEnabled, darkmodeEnabled]);
-
+  
   return (
-    <View style={[styles.container, { backgroundColor: backgroundColor }]}>
-      <View style={[styles.background, { backgroundColor: backgroundColor }]}>
+    <View style={[styles.container]}>
+      <View style={[styles.background]}>
         <View style={styles.setting}>
           <Text style={styles.title}>Settings</Text>
           <TouchableOpacity onPress={closeModal}>
             <Icon name='close' size={40} />
           </TouchableOpacity>
         </View>
+
         <View style={styles.setting}>
-          <Text>Sound:</Text>
+          <Text style={styles.text}>Sound:</Text>
           <Switch
+            trackColor={{true: 'white'}}
+            thumbColor={primaryColor}
             value={soundEnabled}
             onValueChange={toggleSound}
           />
         </View>
+
         <View style={styles.setting}>
-          <Text>Dark Mode:</Text>
+          <Text style={styles.text}>Music:</Text>
           <Switch
-            value={darkmodeEnabled}
-            onValueChange={toggleDarkmode}
+            trackColor={{true: 'white'}}
+            thumbColor={primaryColor}
+            value={musicEnabled}
+            onValueChange={toggleMusic}
           />
         </View>
+        
         <Text style={styles.title}>Stats</Text>
-        <Text>Total steps taken: {state$.stepData.totalSteps.get()}</Text>
-        <Text>Walking multiplier: {state$.modifiers.walkingMultiplier.get()}</Text>
-        <Text>Walking power: {state$.modifiers.walkingPower.get()}</Text>
-        <Text>Strenght power: {state$.skills.strength.power.get()}</Text>
-        <Text>Agility power: {state$.skills.agility.power.get()}</Text>
-        <Text>Stamina power: {state$.skills.stamina.power.get()}</Text>
-        <Text>intelligence power: {state$.skills.intelligence.power.get()}</Text>
+        <Text style={styles.text}>Total steps taken: {state$.stepData.totalSteps.get()}</Text>
+        <Text style={styles.text}>Walking multiplier: {state$.modifiers.walkingMultiplier.get()}</Text>
+        <Text style={styles.text}>Walking power: {state$.modifiers.walkingPower.get()}</Text>
+        <Text style={styles.text}>Strenght power: {state$.skills.strength.power.get()}</Text>
+        <Text style={styles.text}>Agility power: {state$.skills.agility.power.get()}</Text>
+        <Text style={styles.text}>Stamina power: {state$.skills.stamina.power.get()}</Text>
+        <Text style={styles.text}>intelligence power: {state$.skills.intelligence.power.get()}</Text>
       </View>
     </View>
   );
@@ -90,12 +62,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.9)'
   },
   background: {
-    padding: 40
+    padding: 40,
+    backgroundColor: '#313338'
   },
   title: {
     fontSize: 24,
+    color: 'white'
+  },
+  text: {
+    color: 'white'
   },
   setting: {
     flexDirection: 'row',

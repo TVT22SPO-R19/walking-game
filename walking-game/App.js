@@ -12,7 +12,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import IconMC from 'react-native-vector-icons/MaterialCommunityIcons';
 import { enableReactTracking } from "@legendapp/state/config/enableReactTracking";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { backgroundMusic } from './components/sounds';
+import { state$ } from './components/states';
 // This makes React components automatically track get() calls to re-render
 enableReactTracking({ auto: true });
 
@@ -20,7 +22,12 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalBackgroundColor, setModalBackgroundColor] = useState('white');
+  const [ModalPrimaryColor, setModalPrimaryColor] = useState('white');
+  
+  useEffect(() => {
+    backgroundMusic();
+  }, [state$.settings.musicEnabled.get()]);
+
   return (
     <NavigationContainer>
       <StepCounter />
@@ -39,7 +46,7 @@ export default function App() {
                 style={{ justifyContent: 'center', alignItems: 'center' }}
                 onPress={() => {
                   setModalVisible(true)
-                  setModalBackgroundColor('rgba(175,238,238,0.9)');
+                  setModalPrimaryColor('paleturquoise');
                 }}
               >
                 <Icon name='settings' size={40} />
@@ -62,7 +69,7 @@ export default function App() {
                 style={{ justifyContent: 'center', alignItems: 'center' }}
                 onPress={() => {
                   setModalVisible(true)
-                  setModalBackgroundColor('rgba(144,238,144,0.9)');
+                  setModalPrimaryColor('lightgreen');
                 }}
 
               >
@@ -80,13 +87,14 @@ export default function App() {
 
         <Tab.Screen name="Game" component={GameScreen}
           options={({ navigation }) => ({
+            title: 'Walking game',
             headerStyle: { backgroundColor: 'yellow' },
             headerRight: () => (
               <TouchableOpacity
                 style={{ justifyContent: 'center', alignItems: 'center' }}
                 onPress={() => {
                   setModalVisible(true)
-                  setModalBackgroundColor('rgba(255,255,0,0.9)');
+                  setModalPrimaryColor('yellow');
                 }}
               >
                 <Icon name='settings' size={40} />
@@ -111,7 +119,7 @@ export default function App() {
                 style={{ justifyContent: 'center', alignItems: 'center' }}
                 onPress={() => {
                   setModalVisible(true)
-                  setModalBackgroundColor('rgba(255,165,0,0.9)');
+                  setModalPrimaryColor('orange');
                 }}
               >
                 <Icon name='settings' size={40} />
@@ -137,7 +145,7 @@ export default function App() {
           setModalVisible(!modalVisible);
         }}
       >
-        <SettingsModal closeModal={() => setModalVisible(false)} backgroundColor={modalBackgroundColor} />
+        <SettingsModal closeModal={() => setModalVisible(false)} primaryColor={ModalPrimaryColor} />
       </Modal>
     </NavigationContainer>
   );

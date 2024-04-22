@@ -73,6 +73,11 @@ export const state$ = observable({
         lootboxGoldPrice: 10,
         lootboxDiamondPrice: 1
 
+    },
+
+    settings: {
+        soundEnabled: true,
+        musicEnabled: false
     }
 
 })
