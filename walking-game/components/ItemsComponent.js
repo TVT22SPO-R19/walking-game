@@ -8,8 +8,6 @@ import { itemDefinations } from './itemDatabase';
 
 export function initItems() {
 
-    const [ownedItems, setOwnedItems] = useState([]);
-
     const allItemsDict = itemDatabase();
 
     useEffect(() => {
@@ -82,61 +80,49 @@ export function initItems() {
                 state$.itemData[item].set(newState);
             }
         }
-
     }
     const addItemToInventory = (itemId) => {
-        if (ownedItems.includes(itemId)) {
+        console.log("Adding items.")
 
-            console.log("Already owned.")
+        if (!state$.itemData.hasOwnProperty(itemId)) {
+            state$.itemData[itemId].set({ level: 1, init: 1, currentStats: { baseMod: {}, skillMod: {} } })
+        }
 
-        } else {
-            console.log("Adding items.")
-            setOwnedItems(prevItems => [...prevItems, itemId]);
+        const itemEffects = allItemsDict[itemId].effect;
 
-            if (!state$.itemData.hasOwnProperty(itemId)) {
-                state$.itemData[itemId].set({ level: 1, init: 1, currentStats: { baseMod: {}, skillMod: {} } })
-            }
+        const currentItem = state$.itemData[itemId].get();
+        for (const effectKey in itemEffects) {
+            if (itemEffects.hasOwnProperty(effectKey)) {
+                const effectValues = itemEffects[effectKey];
 
-            const itemEffects = allItemsDict[itemId].effect;
+                if (!currentItem.currentStats) {
+                    currentItem.currentStats = {}
+                }
+                if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
+                    currentItem.currentStats[effectKey] = {}
+                }
 
-            const currentItem = state$.itemData[itemId].get();
-            for (const effectKey in itemEffects) {
-                if (itemEffects.hasOwnProperty(effectKey)) {
-                    const effectValues = itemEffects[effectKey];
-
-                    if (!currentItem.currentStats) {
-                        currentItem.currentStats = {}
-                    }
-                    if (!currentItem.currentStats[effectKey]) { //Ensures that there isnt a null value
-                        currentItem.currentStats[effectKey] = {}
-                    }
-
-
-                    // Check if it's baseMod or skillMod
-                    if (effectKey === 'baseMod') {
-                        for (const modKey in effectValues) {
-                            if (!currentItem[effectKey]) { //Ensures that there isnt a null value
-                                currentItem.currentStats[effectKey][modKey] = 0;
-                            }
-
-
-                            if (effectValues.hasOwnProperty(modKey)) {
-                                state$.modifiers[modKey].set(state$.modifiers[modKey].get() + effectValues[modKey]);
-                                currentItem.currentStats[effectKey][modKey] += effectValues[modKey];
-
-                            }
+                // Check if it's baseMod or skillMod
+                if (effectKey === 'baseMod') {
+                    for (const modKey in effectValues) {
+                        if (!currentItem[effectKey]) { //Ensures that there isnt a null value
+                            currentItem.currentStats[effectKey][modKey] = 0;
                         }
-                    } else if (effectKey === 'skillMod') {
-                        for (const skillKey in effectValues) {
-                            if (!currentItem[effectKey]) { //Ensures that there isnt a null value
-                                currentItem.currentStats[effectKey][skillKey] = 0;
-                            }
 
-                            if (effectValues.hasOwnProperty(skillKey)) {
-                                state$.skills[skillKey].power.set(state$.skills[skillKey].power.get() + effectValues[skillKey]);
-                                currentItem.currentStats[effectKey][skillKey] += effectValues[skillKey];
+                        if (effectValues.hasOwnProperty(modKey)) {
+                            state$.modifiers[modKey].set(state$.modifiers[modKey].get() + effectValues[modKey]);
+                            currentItem.currentStats[effectKey][modKey] += effectValues[modKey];
+                        }
+                    }
+                } else if (effectKey === 'skillMod') {
+                    for (const skillKey in effectValues) {
+                        if (!currentItem[effectKey]) { //Ensures that there isnt a null value
+                            currentItem.currentStats[effectKey][skillKey] = 0;
+                        }
 
-                            }
+                        if (effectValues.hasOwnProperty(skillKey)) {
+                            state$.skills[skillKey].power.set(state$.skills[skillKey].power.get() + effectValues[skillKey]);
+                            currentItem.currentStats[effectKey][skillKey] += effectValues[skillKey];
                         }
                     }
                 }
@@ -285,7 +271,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#313338',
     },
     allItems: {
-        marginLeft:10,
+        marginLeft: 10,
         marginRight: 10,
         backgroundColor: '#656565',
         padding: 10,
@@ -295,7 +281,7 @@ const styles = StyleSheet.create({
 
     },
     filterContainer: {
-    
+
         flexDirection: 'row',
         justifyContent: 'space-between',
         backgroundColor: '#e0e0e0', // gray background for item container
@@ -303,12 +289,12 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderRadius: 5,
         padding: 10,
-        margin:10,
+        margin: 10,
     },
     pickerContainer: {
         flex: 1,
         marginRight: 10,
-        marginLeft:10,
+        marginLeft: 10,
     },
     filterText: {
         fontSize: 20,
