@@ -3,6 +3,7 @@ import { state$, walkingResult, intmod } from "./states";
 import { useInterval } from "usehooks-ts"
 import { Text, View, Button } from "react-native";
 import { observable } from '@legendapp/state';
+import { LinearProgress } from '@rneui/themed';
 import { LevelUpSound } from "./sounds";
 
 const gameStates = observable({
@@ -11,6 +12,7 @@ const gameStates = observable({
   isStaActive: false,
   isIntActive: false
 });
+const capMult = 1.1
 
 export default function GameScreen() {
   
@@ -18,6 +20,7 @@ export default function GameScreen() {
   const strengthXp = state$.skills.strength.xp.get() //Defining a variable that gets the corresponding global state so it can be used in code.
   const strengthCap = state$.skills.strength.xpToLevel.get()
   const strengthLvl = state$.skills.strength.level.get()
+  const strenghtProg = computed(() => Math.min(strengthXp / strengthCap ,1));
 
   const agilityXp = state$.skills.agility.xp.get()
   const agilityCap = state$.skills.agility.xpToLevel.get()
@@ -32,11 +35,11 @@ export default function GameScreen() {
   const intelligenceLvl = state$.skills.intelligence.level.get()
 
   const currSteps = state$.stepData.currSteps.get()
-
+  
 
 
   useInterval(() => {
-
+    state$.stepData.currSteps.set((curr) => curr + 5)
     if (currSteps > 0) {
       calcCurrency(currSteps)
       if (gameStates.isStrActive.get() === true) {
@@ -87,11 +90,19 @@ export default function GameScreen() {
   return (
     <View>
       <Text> </Text>
-      <Text>DELETE ME GOLD: {state$.currency.gold.get()}</Text>
+      {/*<Text>DELETE ME GOLD: {state$.currency.gold.get()}</Text>
       <Text>DELETE ME DIAMOND: {state$.currency.diamonds.get()}</Text>
-      <Text>DELETE ME STEPSTODIAMOND: {state$.currency.currStepToDia.get()}</Text>
+  <Text>DELETE ME STEPSTODIAMOND: {state$.currency.currStepToDia.get()}</Text>*/}
       <Text>Strength XP: {strengthXp}/{strengthCap}</Text>
       <Text>Strength level: {strengthLvl} </Text>
+      <Text>Strength prog: {strenghtProg.get().toFixed(2)} </Text>
+      <LinearProgress
+      value={strenghtProg.get()}
+      animation={{duration:500}}
+      variant="determinate"
+      style={{ width: "100%", height: 22 }}
+      color="secondary"
+    />
       <Button onPress={activateStr} title={gameStates.isStrActive.get() ? 'Active' : 'Deactive'}></Button>
 
       <Text>Agility XP: {agilityXp}/{agilityCap}</Text>
@@ -114,18 +125,18 @@ export default function GameScreen() {
 function calcStrengthProg(xp, cap) {                        //function that calculates the strength xp progress
   const newStrengthXp = xp + walkingResult.get();
   state$.stepData.currSteps.set(0);                         //Reset the steps since they were used
-  state$.skills.strength.xp.set(newStrengthXp);
+  state$.skills.strength.xp.set(Math.round(newStrengthXp));
 
   if (newStrengthXp >= cap) {                                 //if xp is over the cap we do the skill level up calculation
     const overflow = newStrengthXp - cap;                              //calculating overflow of xp so none is wasted
     if (overflow > 0) {
-      state$.skills.strength.xp.set(overflow)               //sets the overflown xp as the new xp value
+      state$.skills.strength.xp.set(Math.round(overflow))               //sets the overflown xp as the new xp value
     } else {
       state$.skills.strength.xp.set(0)
     }
     state$.stepData.currSteps.set(0)
     state$.skills.strength.level.set((v) => v + 1)            //increment skill level
-    const newStrengthcap = Math.round((cap * intmod.get()) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
+    const newStrengthcap = Math.round((cap * capMult) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
     state$.skills.strength.xpToLevel.set(newStrengthcap)    //setting the new xp requirement
     LevelUpSound();
   }
@@ -134,18 +145,18 @@ function calcStrengthProg(xp, cap) {                        //function that calc
 function calcAgilityProg(xp, cap) {                        //function that calculates the agility xp progress
   const newAgilityXp = xp + walkingResult.get();
   state$.stepData.currSteps.set(0);                         //Reset the steps since they were used
-  state$.skills.agility.xp.set(newAgilityXp);
+  state$.skills.agility.xp.set(Math.round(newAgilityXp));
 
   if (newAgilityXp >= cap) {                                 //if xp is over the cap we do the skill level up calculation
     const overflow = newAgilityXp - cap;                              //calculating overflow of xp so none is wasted
     if (overflow > 0) {
-      state$.skills.agility.xp.set(overflow)               //sets the overflown xp as the new xp value
+      state$.skills.agility.xp.set(Math.round(overflow))               //sets the overflown xp as the new xp value
     } else {
       state$.skills.agility.xp.set(0)
     }
     state$.stepData.currSteps.set(0)
     state$.skills.agility.level.set((v) => v + 1)            //increment skill level
-    const newAgilityCap = Math.round((cap * intmod.get()) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
+    const newAgilityCap = Math.round((cap * capMult) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
     state$.skills.agility.xpToLevel.set(newAgilityCap)    //setting the new xp requirement
     LevelUpSound();
   }
@@ -154,18 +165,18 @@ function calcAgilityProg(xp, cap) {                        //function that calcu
 function calcstaminaProg(xp, cap) {                        //function that calculates the stamina xp progress
   const newStaminaXp = xp + walkingResult.get();
   state$.stepData.currSteps.set(0);                         //Reset the steps since they were used
-  state$.skills.stamina.xp.set(newStaminaXp);
+  state$.skills.stamina.xp.set(Math.round(newStaminaXp));
 
   if (newStaminaXp >= cap) {                                 //if xp is over the cap we do the skill level up calculation
     const overflow = newStaminaXp - cap;                              //calculating overflow of xp so none is wasted
     if (overflow > 0) {
-      state$.skills.stamina.xp.set(overflow)               //sets the overflown xp as the new xp value
+      state$.skills.stamina.xp.set(Math.round(overflow))               //sets the overflown xp as the new xp value
     } else {
       state$.skills.stamina.xp.set(0)
     }
     state$.stepData.currSteps.set(0)
     state$.skills.stamina.level.set((v) => v + 1)            //increment skill level
-    const newStaminaCap = Math.round((cap * intmod.get()) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
+    const newStaminaCap = Math.round((cap * capMult) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
     state$.skills.stamina.xpToLevel.set(newStaminaCap)    //setting the new xp requirement
     LevelUpSound();
   }
@@ -174,18 +185,18 @@ function calcstaminaProg(xp, cap) {                        //function that calcu
 function calcIntelligenceProg(xp, cap) {                        //function that calculates the intelligence xp progress
   const newIntelligenceXp = xp + walkingResult.get();
   state$.stepData.currSteps.set(0);                         //Reset the steps since they were used
-  state$.skills.intelligence.xp.set(newIntelligenceXp);
+  state$.skills.intelligence.xp.set(Math.round(newIntelligenceXp));
 
   if (newIntelligenceXp >= cap) {                                 //if xp is over the cap we do the skill level up calculation
     const overflow = newIntelligenceXp - cap;                              //calculating overflow of xp so none is wasted
     if (overflow > 0) {
-      state$.skills.intelligence.xp.set(overflow)               //sets the overflown xp as the new xp value
+      state$.skills.intelligence.xp.set(Math.round(overflow))               //sets the overflown xp as the new xp value
     } else {
       state$.skills.intelligence.xp.set(0)
     }
     state$.stepData.currSteps.set(0)
     state$.skills.intelligence.level.set((v) => v + 1)            //increment skill level
-    const newIntelligenceCap = Math.round((cap * intmod.get()) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
+    const newIntelligenceCap = Math.round((cap * capMult) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
     state$.skills.intelligence.xpToLevel.set(newIntelligenceCap)    //setting the new xp requirement
     LevelUpSound();
   }
