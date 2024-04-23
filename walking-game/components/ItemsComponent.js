@@ -145,7 +145,6 @@ export function initItems() {
 
 export default function ItemsComponent() {
 
-
     const { allItemsDict } = initItems(); //Decided to move items to own component so its easier to edit in the future.
     const effectDescriptions = itemDefinations(); //Has descriptions for all of the effects making it easier to read for user and for us to edit.
 
@@ -156,10 +155,13 @@ export default function ItemsComponent() {
     const [selectedRarity, setSelectedRarity] = useState('All'); // State to track the selected rarity
     const [selectedEffect, setSelectedEffect] = useState('All'); // State to track the selected effect category
 
+    const [dataLoaded, setDataLoaded] = useState(false);
+
     useEffect(() => {
         const interval = setInterval(() => {
             setRunInit(true);
-
+            setItemValues(state$.itemData.get());
+            setDataLoaded(true);
         }, 1000); // Reload every second. For some reason trying to fuse these two useEffects breaks the code.
 
         return () => clearInterval(interval); // Cleanup the interval on component unmount
@@ -178,34 +180,31 @@ export default function ItemsComponent() {
 
     const filterItemsByRarityAndEffect = () => {
         let filteredItems = ownedItems;
-
+        if (ownedItems.length > 0) {
+            if (selectedRarity !== 'All') {
+                filteredItems = filteredItems.filter(itemKey => {
+                    const itemId = allItemsDict[itemKey];
+                    return itemId.rarity === selectedRarity;
+                });
+            }
+    
+            // Filter by effect category
+            if (selectedEffect !== 'All') {
+                filteredItems = filteredItems.filter(itemKey => {
+                    const item = itemValues[itemKey];
+                    // Check if the item has skillMod and if the selected effect is present in skillMod
+                    const hasSkillMod = item.currentStats && item.currentStats.skillMod && item.currentStats.skillMod[selectedEffect] !== undefined;
+                    // Check if the item has baseMod and if the selected effect is present in baseMod
+                    const hasBaseMod = item.currentStats && item.currentStats.baseMod && item.currentStats.baseMod[selectedEffect] !== undefined;
+                    // Include the item in the filtered list if the selected effect is found in either skillMod or baseMod
+                    return hasSkillMod || hasBaseMod;
+                });
+            }
+    
+            return filteredItems;
+    
+        }
         // Filter by rarity
-        if (selectedRarity !== 'All') {
-            filteredItems = filteredItems.filter(itemKey => {
-                const itemId = allItemsDict[itemKey];
-                return itemId.rarity === selectedRarity;
-            });
-        }
-
-        // Filter by effect category
-        if (selectedEffect !== 'All') {
-            filteredItems = filteredItems.filter(itemKey => {
-                const item = itemValues[itemKey];
-                // Check if the item has skillMod and if the selected effect is present in skillMod
-                const hasSkillMod = item.currentStats && item.currentStats.skillMod && item.currentStats.skillMod[selectedEffect] !== undefined;
-                // Check if the item has baseMod and if the selected effect is present in baseMod
-                const hasBaseMod = item.currentStats && item.currentStats.baseMod && item.currentStats.baseMod[selectedEffect] !== undefined;
-                // Include the item in the filtered list if the selected effect is found in either skillMod or baseMod
-                return hasSkillMod || hasBaseMod;
-            });
-        }
-        filteredItems.sort((itemKeyA, itemKeyB) => {
-            const itemA = itemValues[itemKeyA];
-            const itemB = itemValues[itemKeyB];
-            return itemB.level - itemA.level;
-        });
-
-        return filteredItems;
     };
 
     return (
@@ -239,26 +238,37 @@ export default function ItemsComponent() {
                     </Picker>
                 </View>
             </View>
-            {filterItemsByRarityAndEffect().length > 0 && (
-                <View style={styles.allItems}>
-                    <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Owned Items:</Text>
-                    {filterItemsByRarityAndEffect().map(itemKey => {
-                        const item = itemValues[itemKey];
-                        const itemId = allItemsDict[itemKey];
-                        return (
-                            <View key={itemId.name} style={styles.itemContainer}>
-                                <Text>Rarity: {itemId.rarity}</Text>
-                                <Text>Name: {itemId.name}</Text>
-                                <Text>Effect:</Text>
-                                {Object.entries(item.currentStats).map(([category, value]) => (
-                                    Object.entries(item.currentStats[category]).map(([keyEffect, keyValue]) => (
-                                        <Text key={keyEffect}>{effectDescriptions[keyEffect]}: {keyValue.toFixed(2)}</Text>
-                                    ))
-                                ))}
-                                <Text>Level: {item.level}</Text>
-                            </View>
-                        );
-                    })}
+            {dataLoaded && (
+                <View>
+                    {filterItemsByRarityAndEffect().length > 0 && (
+                        <View style={styles.allItems}>
+                            <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Owned Items:</Text>
+                            {filterItemsByRarityAndEffect().map(itemKey => {
+                                const item = itemValues[itemKey];
+                                const itemId = allItemsDict[itemKey];
+
+                                if (item) {
+                                    return (
+                                        <View key={itemId.name} style={styles.itemContainer}>
+                                            <Text>Rarity: {itemId.rarity}</Text>
+                                            <Text>Name: {itemId.name}</Text>
+                                            <Text>Effect:</Text>
+                                            {Object.entries(item.currentStats).map(([category, value]) => (
+                                                Object.entries(item.currentStats[category]).map(([keyEffect, keyValue]) => (
+                                                    <Text key={keyEffect}>{effectDescriptions[keyEffect]}: {keyValue.toFixed(2)}</Text>
+                                                ))
+                                            ))}
+                                            <Text>Level: {item?.level}</Text>
+                                        </View>
+                                    );
+                                    } else {
+                                    console.log("Item", itemKey, "is undefined");
+                                }
+                                
+                            })}
+                        </View>
+                    )
+                    }
                 </View>
             )}
         </ScrollView>
