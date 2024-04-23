@@ -6,18 +6,20 @@ import { state$ } from './states';
 export default function StepCounter() {
   const [isPedometerAvailable, setIsPedometerAvailable] = useState('checking');
 
-  const savedSteps = state$.stepData.totalSteps.get(); //Load saved steps
   const subscribe = async () => {
     const isAvailable = await Pedometer.isAvailableAsync();
     setIsPedometerAvailable(String(isAvailable));
 
     if (isAvailable) {
+      const savedSteps = state$.stepData.totalSteps.get(); //Load saved steps
       let lastTotalSteps = savedSteps;
       Pedometer.watchStepCount(result => {
-        const totalSteps = result.steps + savedSteps; // New total steps
-        state$.stepData.totalSteps.set(totalSteps);
-        state$.stepData.currSteps.set(totalSteps - lastTotalSteps + state$.stepData.currSteps.get()); // Steps between updates
-        lastTotalSteps = totalSteps;
+        if (result.steps !== 1) {
+          const totalSteps = result.steps + savedSteps; // New total steps
+          state$.stepData.totalSteps.set(totalSteps);
+          state$.stepData.currSteps.set(totalSteps - lastTotalSteps + state$.stepData.currSteps.get()); // Steps between updates
+          lastTotalSteps = totalSteps;
+        }
       });
     }
   };
@@ -30,8 +32,8 @@ export default function StepCounter() {
         "Permission Required",
         "This game needs physical activity permission to function.",
         [
-          { 
-            text: "Open Settings", 
+          {
+            text: "Open Settings",
             onPress: () => Linking.openSettings() // Open permission settings
           }
         ]
@@ -48,11 +50,5 @@ export default function StepCounter() {
     return () => subscription && subscription.remove();
   }, []);
 
-  //Temp visuals for testing
-  return (
-    <View>
-      <Text>Total steps taken: {state$.stepData.totalSteps.get()}</Text>
-      <Text>Unused steps: {state$.stepData.currSteps.get()}</Text>
-    </View>
-  );
+  return null;
 }
