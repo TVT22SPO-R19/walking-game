@@ -31,19 +31,19 @@ export const state$ = observable({
         agility: {
             xp: 0,
             xpToLevel: 100,
-            level: 1,
+            level: 0,
             power: 1
         },
         stamina: {
             xp: 0,
             xpToLevel: 100,
-            level: 1,
+            level: 0,
             power: 1
         },
         intelligence: {
             xp: 0,
             xpToLevel: 100,
-            level: 1,
+            level: 0,
             power: 1
         },
     },
@@ -53,11 +53,6 @@ export const state$ = observable({
     },
 
     itemData: {
-        /*badTowel: 
-        {
-            level: 1, 
-            init: 0
-        }*/
 
     },
 
@@ -80,7 +75,14 @@ export const state$ = observable({
     settings: {
         soundEnabled: true,
         musicEnabled: false
-    }
+    },
+
+    gameStates: {
+        isStrActive: true,
+        isAgiActive: false,
+        isStaActive: false,
+        isIntActive: false
+    },
 
 })
 
