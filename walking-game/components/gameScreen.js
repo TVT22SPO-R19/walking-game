@@ -4,6 +4,7 @@ import { useInterval } from "usehooks-ts"
 import { Text, View, Button, StyleSheet, TouchableOpacity } from "react-native";
 import { observable } from '@legendapp/state';
 import { LinearProgress } from '@rneui/themed';
+import { LevelUpSound } from "./sounds";
 
 
 const capMult = 1.23
@@ -214,7 +215,7 @@ function calcStrengthProg(xp, cap) {                        //function that calc
     state$.skills.strength.level.set((v) => v + 1)            //increment skill level
     const newStrengthcap = Math.round((cap * capMult) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
     state$.skills.strength.xpToLevel.set(newStrengthcap)    //setting the new xp requirement
-
+    LevelUpSound();
   }
 }
 
@@ -234,7 +235,7 @@ function calcAgilityProg(xp, cap) {                        //function that calcu
     state$.skills.agility.level.set((v) => v + 1)            //increment skill level
     const newAgilityCap = Math.round((cap * capMult) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
     state$.skills.agility.xpToLevel.set(newAgilityCap)    //setting the new xp requirement
-
+    LevelUpSound();
   }
 }
 
@@ -254,7 +255,7 @@ function calcstaminaProg(xp, cap) {                        //function that calcu
     state$.skills.stamina.level.set((v) => v + 1)            //increment skill level
     const newStaminaCap = Math.round((cap * capMult) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
     state$.skills.stamina.xpToLevel.set(newStaminaCap)    //setting the new xp requirement
-
+    LevelUpSound();
   }
 }
 
@@ -274,7 +275,7 @@ function calcIntelligenceProg(xp, cap) {                        //function that 
     state$.skills.intelligence.level.set((v) => v + 1)            //increment skill level
     const newIntelligenceCap = Math.round((cap * capMult) ** 1.01)          //calculating exponential increase for the new xp to levelling up requirement
     state$.skills.intelligence.xpToLevel.set(newIntelligenceCap)    //setting the new xp requirement
-
+    LevelUpSound();
   }
 }
 
