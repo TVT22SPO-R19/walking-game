@@ -35,8 +35,8 @@ export default ItemDatabase = () => {
         //Intelligence
 
         badGlasses: { name: "Broken glasses.", effect: { skillMod: { intelligence: 0.5 } }, cost: 800, restricted: "lootbox", rarity: "Common" },
-        badGlasses: { name: "Just normal glasses. Nerd.", effect: { skillMod: { intelligence: 1.5 } }, cost: 800, restricted: "lootbox", rarity: "Rare" },
-        badGlasses: { name: "Cool sunglasses.", effect: { skillMod: { intelligence: 3 } }, cost: 800, restricted: "lootbox", rarity: "Legendary" },
+        goodGlasses: { name: "Just normal glasses. Nerd.", effect: { skillMod: { intelligence: 1.5 } }, cost: 800, restricted: "lootbox", rarity: "Rare" },
+        bestGlasses: { name: "Cool sunglasses.", effect: { skillMod: { intelligence: 3 } }, cost: 800, restricted: "lootbox", rarity: "Legendary" },
 
 
         //Agi + Stam
@@ -56,11 +56,6 @@ export default ItemDatabase = () => {
         badTowel: { name: "Half rotten towel.", effect: { skillMod: { stamina: 0.5, strenght: 0.5 } }, cost: 800, restricted: "lootbox", rarity: "Common" },
         goodTowel: { name: "A good smelling towel.", effect: { skillMod: { stamina: 1.5, strenght: 1.5 } }, cost: 800, restricted:"lootbox", rarity: "Rare" },
         bestTowel: { name: "Towel that has too many sponsors on it.", effect: { skillMod: { stamina: 3, strenght: 3 } }, cost: 800, restricted: "lootbox", rarity: "Legendary" },
-
-        //Bundles
-        badPills: { name: "Vitamin pills.", effect: { skillMod: { strenght: 0.5 } }, cost: 800, restricted: ["lootbox, bundle"], rarity: "Common" },
-        goodWatch: { name: "Your grandpas working watch.", effect: { skillMod: { stamina: 1.5, agility: 1.5 } }, cost: 800, restricted: ["lootbox, bundle"], rarity: "Rare" },
-        bestGlasses: { name: "Cool sunglasses.", effect: { skillMod: { intelligence: 3 } }, cost: 800, restricted: ["lootbox, bundle"], rarity: "Legendary" },
 
         itemBundle: { 
             name: "Store Item Bundle", 
