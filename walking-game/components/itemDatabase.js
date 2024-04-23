@@ -28,7 +28,8 @@ export default ItemDatabase = () => {
 
         //Strenght
 
-        badPills: { name: "Vitamin pills.", effect: { skillMod: { strenght: 0.5 } }, cost: 800, restricted:  "lootbox", rarity: "Common" },
+
+        badPills: { name: "Vitamin pills.", effect: { skillMod: { strenght: 0.5 } }, cost: 800, restricted: "lootbox", rarity: "Common" },
         goodPills: { name: "Protean powder.", effect: { skillMod: { strenght: 1.5 } }, cost: 800, restricted: "lootbox", rarity: "Rare" },
         bestPills: { name: "'Legal' power enhancing pills.", effect: { skillMod: { strenght: 3 } }, cost: 800, restricted: "lootbox", rarity: "Legendary" },
 
