@@ -1,53 +1,50 @@
 import { observe, computed } from "@legendapp/state";
 import { state$, walkingResult, intmod } from "./states";
 import { useInterval } from "usehooks-ts"
-import { Text, View, Button } from "react-native";
+import { Text, View, Button, StyleSheet, TouchableOpacity } from "react-native";
 import { observable } from '@legendapp/state';
 import { LinearProgress } from '@rneui/themed';
 
-const gameStates = observable({
-  isStrActive: true,
-  isAgiActive: false,
-  isStaActive: false,
-  isIntActive: false
-});
-const capMult = 1.1
+
+const capMult = 1.23
 
 export default function GameScreen() {
-  
+
 
   const strengthXp = state$.skills.strength.xp.get() //Defining a variable that gets the corresponding global state so it can be used in code.
   const strengthCap = state$.skills.strength.xpToLevel.get()
   const strengthLvl = state$.skills.strength.level.get()
-  const strenghtProg = computed(() => Math.min(strengthXp / strengthCap ,1));
+  const strenghtProg = computed(() => Math.min(strengthXp / strengthCap, 1)); //used is progress bar as progress, math.min ensures that the value never exceedes 1
 
   const agilityXp = state$.skills.agility.xp.get()
   const agilityCap = state$.skills.agility.xpToLevel.get()
   const agilityLvl = state$.skills.agility.level.get()
+  const agilityProg = computed(() => Math.min(agilityXp / agilityCap, 1));
 
   const staminaXp = state$.skills.stamina.xp.get()
   const staminaCap = state$.skills.stamina.xpToLevel.get()
   const staminaLvl = state$.skills.stamina.level.get()
+  const staminaProg = computed(() => Math.min(staminaXp / staminaCap, 1));
 
   const intelligenceXp = state$.skills.intelligence.xp.get()
   const intelligenceCap = state$.skills.intelligence.xpToLevel.get()
   const intelligenceLvl = state$.skills.intelligence.level.get()
+  const intelligenceProg = computed(() => Math.min(intelligenceXp / intelligenceCap, 1));
 
   const currSteps = state$.stepData.currSteps.get()
-  
+
 
 
   useInterval(() => {
-    state$.stepData.currSteps.set((curr) => curr + 5)
-    if (currSteps > 0) {
+    if (currSteps > 0) {         //basic gameplay loop, if there are steps when interval happens, give coins exp etc.
       calcCurrency(currSteps)
-      if (gameStates.isStrActive.get() === true) {
+      if (state$.gameStates.isStrActive.get() === true) {
         calcStrengthProg(strengthXp, strengthCap)
-      } else if (gameStates.isAgiActive.get() === true) {
+      } else if (state$.gameStates.isAgiActive.get() === true) {
         calcAgilityProg(agilityXp, agilityCap)
-      } else if (gameStates.isStaActive.get() === true) {
+      } else if (state$.gameStates.isStaActive.get() === true) {
         calcstaminaProg(staminaXp, staminaCap)
-      } else if (gameStates.isIntActive.get() === true) {
+      } else if (state$.gameStates.isIntActive.get() === true) {
         calcIntelligenceProg(intelligenceXp, intelligenceCap)
       } else { }
     }
@@ -55,71 +52,151 @@ export default function GameScreen() {
 
   const activateStr = () => {
 
-    gameStates.isStrActive.set(true)
-    gameStates.isStaActive.set(false)
-    gameStates.isAgiActive.set(false)
-    gameStates.isIntActive.set(false)
+    state$.gameStates.isStrActive.set(true)
+    state$.gameStates.isStaActive.set(false)
+    state$.gameStates.isAgiActive.set(false)
+    state$.gameStates.isIntActive.set(false)
 
   };
 
 
   const activateAgi = () => {
 
-    gameStates.isStrActive.set(false)
-    gameStates.isStaActive.set(false)
-    gameStates.isAgiActive.set(true)
-    gameStates.isIntActive.set(false)
+    state$.gameStates.isStrActive.set(false)
+    state$.gameStates.isStaActive.set(false)
+    state$.gameStates.isAgiActive.set(true)
+    state$.gameStates.isIntActive.set(false)
 
   };
 
   const activateSta = () => {
-    gameStates.isStrActive.set(false)
-    gameStates.isStaActive.set(true)
-    gameStates.isAgiActive.set(false)
-    gameStates.isIntActive.set(false)
+    state$.gameStates.isStrActive.set(false)
+    state$.gameStates.isStaActive.set(true)
+    state$.gameStates.isAgiActive.set(false)
+    state$.gameStates.isIntActive.set(false)
   };
 
   const activateInt = () => {
-    gameStates.isStrActive.set(false)
-    gameStates.isStaActive.set(false)
-    gameStates.isAgiActive.set(false)
-    gameStates.isIntActive.set(true)
+    state$.gameStates.isStrActive.set(false)
+    state$.gameStates.isStaActive.set(false)
+    state$.gameStates.isAgiActive.set(false)
+    state$.gameStates.isIntActive.set(true)
   };
 
   return (
-    <View>
+    <View style={gamestyles.container}>
       <Text> </Text>
-      {/*<Text>DELETE ME GOLD: {state$.currency.gold.get()}</Text>
-      <Text>DELETE ME DIAMOND: {state$.currency.diamonds.get()}</Text>
-  <Text>DELETE ME STEPSTODIAMOND: {state$.currency.currStepToDia.get()}</Text>*/}
-      <Text>Strength XP: {strengthXp}/{strengthCap}</Text>
-      <Text>Strength level: {strengthLvl} </Text>
-      <Text>Strength prog: {strenghtProg.get().toFixed(2)} </Text>
+      <Text style={gamestyles.text}>Strength level: {strengthLvl} </Text>
+      <Text style={gamestyles.text2} >Strength XP: {strengthXp}/{strengthCap}</Text>
       <LinearProgress
-      value={strenghtProg.get()}
-      animation={{duration:500}}
-      variant="determinate"
-      style={{ width: "100%", height: 22 }}
-      color="secondary"
-    />
-      <Button onPress={activateStr} title={gameStates.isStrActive.get() ? 'Active' : 'Deactive'}></Button>
+        value={strenghtProg.get()}
+        animation={{ duration: 500 }}
+        variant="determinate"
+        style={gamestyles.progress}
+        color="#FCDC2A"
+      />
+      <TouchableOpacity
+        onPress={activateStr}
+        style={gamestyles.button}
+      >
+        <Text style={gamestyles.buttonText}>
+          {state$.gameStates.isStrActive.get() ? 'Training your Strength' : 'Click to train Strength'}
+        </Text>
+      </TouchableOpacity>
+     
+      <Text style={gamestyles.text}>Agility level: {agilityLvl} </Text>
+      <Text style={gamestyles.text2}>Agility XP: {agilityXp}/{agilityCap}</Text>
+      <LinearProgress
+        value={agilityProg.get()}
+        animation={{ duration: 500 }}
+        variant="determinate"
+        style={gamestyles.progress}
+        color="#FCDC2A"
+      />
+      <TouchableOpacity
+        onPress={activateAgi}
+        style={gamestyles.button}
+      >
+        <Text style={gamestyles.buttonText}>
+          {state$.gameStates.isAgiActive.get() ? 'Training your Agility' : 'Click to train Agility'}
+        </Text>
+      </TouchableOpacity>
 
-      <Text>Agility XP: {agilityXp}/{agilityCap}</Text>
-      <Text>Agility level: {agilityLvl} </Text>
-      <Button onPress={activateAgi} title={gameStates.isAgiActive.get() ? 'Active' : 'Deactive'}></Button>
+      <Text style={gamestyles.text}>Stamina level: {staminaLvl} </Text>
+      <Text style={gamestyles.text2}>Stamina XP: {staminaXp}/{staminaCap}</Text>
+      <LinearProgress
+        value={staminaProg.get()}
+        animation={{ duration: 500 }}
+        variant="determinate"
+        style={gamestyles.progress}
+        color="#FCDC2A"
+      />
+      <TouchableOpacity
+        onPress={activateSta}
+        style={gamestyles.button}
+      >
+        <Text style={gamestyles.buttonText}>
+        {state$.gameStates.isStaActive.get() ? 'Training your Stamina' : 'Click to train Stamina'}
+        </Text>
+      </TouchableOpacity>
 
-      <Text>Stamina XP: {staminaXp}/{staminaCap}</Text>
-      <Text>Stamina level: {staminaLvl} </Text>
-      <Button onPress={activateSta} title={gameStates.isStaActive.get() ? 'Active' : 'Deactive'}></Button>
-
-      <Text>Intelligence XP: {intelligenceXp}/{intelligenceCap}</Text>
-      <Text>Intelligence level: {intelligenceLvl} </Text>
-      <Button onPress={activateInt} title={gameStates.isIntActive.get() ? 'Active' : 'Deactive'}></Button>
+      <Text style={gamestyles.text}>Intelligence level: {intelligenceLvl} </Text>
+      <Text style={gamestyles.text2}>Intelligence XP: {intelligenceXp}/{intelligenceCap}</Text>
+      <LinearProgress
+        value={intelligenceProg.get()}
+        animation={{ duration: 500 }}
+        variant="determinate"
+        style={gamestyles.progress}
+        color="#FCDC2A"
+      />
+      <TouchableOpacity
+        onPress={activateInt}
+        style={gamestyles.button}
+      >
+        <Text style={gamestyles.buttonText}>
+        {state$.gameStates.isIntActive.get() ? 'Training your Intelligence' : 'Click to train Intelligence'}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 
 
 }
+
+const gamestyles = StyleSheet.create({
+  container: {
+    backgroundColor: '#2B2D31' ,
+    color: 'white',
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: {
+    marginTop: 10,
+    marginBottom: 10,
+    color: 'white'
+  },
+  text2: {
+    marginBottom: -30,
+    color: 'black',
+    zIndex: 1, // Ensure the text is on top by setting a higher z-index
+  },
+  progress: {
+    width: "90%",
+    height: 40,
+    marginBottom: 5,
+    
+  },
+  button: {
+    backgroundColor: '#87A922',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    width: '90%',
+    height: 40,
+    
+  },
+});
 
 function calcStrengthProg(xp, cap) {                        //function that calculates the strength xp progress
   const newStrengthXp = xp + walkingResult.get();
