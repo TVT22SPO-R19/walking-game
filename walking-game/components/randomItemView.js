@@ -19,7 +19,7 @@ export default RandomItemView = () => {
         // Function to select a random item from allItemsDict. Items require the key restricted with the value shop. 
         const selectRandomItem = () => {
             const filteredItems = Object.entries(allItemsDict)
-                .filter(([id, item]) => item.restricted === "shop")
+                //.filter(([id, item]) => item.restricted.includes("shop"))
                 .reduce((obj, [id, item]) => {
                     obj[id] = { ...item, id };
                     return obj;
@@ -41,7 +41,12 @@ export default RandomItemView = () => {
     }, []);
     const handleBuy = () => {
         itemCost = allItemsDict[currentItem.id].cost;
-        if (true) {
+        const gold = state$.currency.gold.get();
+
+        if (gold >= itemCost) {
+            state$.currency.gold.set(gold - itemCost);
+
+        //if (true) {
             if (!state$.itemData.hasOwnProperty(currentItem.id)) {
                 state$.itemData[currentItem.id].set({ level: 1, init: 0 });
                 initializeItemData();
@@ -58,6 +63,7 @@ export default RandomItemView = () => {
             }
     
         } else {
+            alert("You don't have enough gold.")
             console.log("No money")
         }
     };
@@ -79,8 +85,9 @@ export default RandomItemView = () => {
                             </View>
                         ))}
                     </View>
+                    <Text>Price: {allItemsDict[currentItem.id].cost} Gold</Text>
                     <TouchableOpacity style={styles.Button} onPress={handleBuy}>
-                        <Text style={styles.buttonText}>Buy</Text>
+                        <Text style={styles.buttonText}>Buy with Gold</Text>
                     </TouchableOpacity>
                 </>
             )}
@@ -90,13 +97,12 @@ export default RandomItemView = () => {
 
 const styles = StyleSheet.create({
 Button: {
-    backgroundColor: 'blue',
+    backgroundColor: 'gold',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
   },
   buttonText: {
-    color: 'white',
     fontWeight: 'bold',
   },
 });
