@@ -2,8 +2,12 @@ import React from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
 import ItemDatabase from './itemDatabase';
 import { state$ } from './states';
+import { initItems } from './ItemsComponent';
+
 
 const LootboxScreen = () => {
+
+  const { initializeItemData } = initItems();
 
   const gold = state$.currency.gold.get();
   const diamonds = state$.currency.diamonds.get();
@@ -56,6 +60,23 @@ const LootboxScreen = () => {
       const lootboxItems = Object.values(itemFilter(items, "lootbox")); //uses the filter function to filter ItemDatabase's dictionary only retaining items tagged 'lootbox'
       const randomIndex = Math.floor(Math.random() * lootboxItems.length); //selects a random item
       const selectedItem = lootboxItems[randomIndex]; //inserts the random item into selectedItem
+
+      const selectedItemName = selectedItem.name; //get the name of the selected item
+      console.log(selectedItem);
+      const selectedItemID = Object.keys(items).find(key => items[key].name === selectedItemName);
+
+      //tarkistaa onko esinettä, lisää jos ei
+      if (!state$.itemData.hasOwnProperty(selectedItemID)) {
+        state$.itemData[selectedItemID].set({ level: 1, init: 0 });
+        initializeItemData();
+        console.log(state$.itemData.get());
+      } else if (state$.itemData.hasOwnProperty(selectedItemID)) { //jos esine on, levelaa sitä
+        let curItem = { ...state$.itemData[selectedItemID].get() }
+        curItem.level++;
+        state$.itemData[selectedItemID].set(curItem);
+        initializeItemData();
+      }
+
       Alert.alert("Lootbox opened!", `You received: ${selectedItem.name}`);
     } else {
       Alert.alert("No lootboxes", "You don't have any lootboxes to open.");
