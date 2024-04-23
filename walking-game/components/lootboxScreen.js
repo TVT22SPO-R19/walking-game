@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import ItemDatabase from './itemDatabase';
 import { state$ } from './states';
 import { initItems } from './ItemsComponent';
@@ -77,7 +77,7 @@ const LootboxScreen = () => {
         initializeItemData();
       }
 
-      Alert.alert("Lootbox opened!", `You received: ${selectedItem.name}`);
+      Alert.alert("Lootbox opened!", `You received: ${selectedItem.name} \n\nRarity: ${selectedItem.rarity}`);
     } else {
       Alert.alert("No lootboxes", "You don't have any lootboxes to open.");
     }
@@ -85,25 +85,95 @@ const LootboxScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Gold: {gold}</Text>
-      <Text style={styles.text}>Diamonds: {diamonds}</Text>
-      <Text style={styles.text}>Lootboxes: {lootboxCount}</Text>
-      <Button style={styles.button} title={`Buy Lootbox (Costs ${lootboxGoldPrice} gold)`} onPress={handlePurchaseWithGold} />
-      <Button style={styles.button} title={`Buy Lootbox (Costs ${lootboxDiamondPrice} diamond)`} onPress={handlePurchaseWithDiamonds} />
-      <Button style={styles.button} title="Open Lootbox" onPress={openLootbox} />
+      <View style={styles.currencyContainer}>
+        <Text style={styles.currencyText}>Gold: {gold}💰</Text>
+        <Text style={styles.currencyText}>Diamonds: {diamonds}💎</Text>
+        <Text style={styles.currencyText}>Lootboxes: {lootboxCount}🧰</Text>
+      </View>
+      <View style={styles.sectionContainer}>
+        <Text style={styles.buttonDescription}>Price: {lootboxDiamondPrice} Diamonds</Text>
+        <TouchableOpacity
+          style={styles.buyLootboxButton}
+          onPress={handlePurchaseWithDiamonds}>
+          <Text style={styles.lootboxButtonText}>Buy with Diamonds</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.sectionContainer}>
+        <Text style={styles.buttonDescription}>Price: {lootboxGoldPrice} Gold</Text>
+          <TouchableOpacity
+              style={styles.buyLootboxButton}
+              onPress={handlePurchaseWithGold}>
+              <Text style={styles.lootboxButtonText}>Buy with Gold</Text>
+          </TouchableOpacity>
+      </View>
+      <View style={styles.sectionContainer}>
+        <Text style={styles.buttonDescription}>You have {lootboxCount} lootboxes</Text>
+          <TouchableOpacity
+            style={styles.buyLootboxButton}
+            onPress={openLootbox}>
+            <Text style={styles.lootboxButtonText}>Open lootbox</Text>
+          </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#313338',
+    padding: 10,
   },
   text: {
     fontSize: 20,
     marginBottom: 10,
+  },
+  currencyContainer: {
+    
+    marginLeft: 10,
+    marginRight: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginBottom: '15%',
+    borderWidth: 2,
+    borderColor: '#453C67',
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: '#46C2CB',
+  },
+  currencyText: {
+    fontSize: 16,
+    marginRight: 10,
+  },
+  sectionContainer: {
+    borderWidth: 1,
+    borderColor: '#453C67',
+    borderRadius: 10,
+    borderWidth: 2,
+    padding: 10,
+    marginBottom: 10,
+    width: '90%',
+    backgroundColor: '#46C2CB',
+  },
+  buyLootboxButton: {
+    backgroundColor: '#6D67E4',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  lootboxButtonText: {
+    fontSize: 16,
+    marginRight: 10,
+  },
+  buttonDescription: {
+    backgroundColor: 'lightblue',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+    fontSize: 16,
+    marginRight: 10,
   },
 
 });
