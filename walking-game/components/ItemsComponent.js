@@ -180,7 +180,6 @@ export default function ItemsComponent() {
 
     const filterItemsByRarityAndEffect = () => {
         let filteredItems = ownedItems;
-        if (ownedItems.length > 0) {
             if (selectedRarity !== 'All') {
                 filteredItems = filteredItems.filter(itemKey => {
                     const itemId = allItemsDict[itemKey];
@@ -203,8 +202,6 @@ export default function ItemsComponent() {
     
             return filteredItems;
     
-        }
-        // Filter by rarity
     };
 
     return (
