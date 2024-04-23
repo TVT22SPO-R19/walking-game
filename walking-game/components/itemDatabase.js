@@ -58,6 +58,8 @@ export default ItemDatabase = () => {
         goodTowel: { name: "A good smelling towel.", effect: { skillMod: { stamina: 1.5, strenght: 1.5 } }, cost: 800, restricted:"lootbox", rarity: "Rare" },
         bestTowel: { name: "Towel that has too many sponsors on it.", effect: { skillMod: { stamina: 3, strenght: 3 } }, cost: 800, restricted: "lootbox", rarity: "Legendary" },
 
+        //Bundles
+
         itemBundle: { 
             name: "Store Item Bundle", 
             items: ["badPills", "goodWatch", "bestGlasses"],
