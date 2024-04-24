@@ -1,4 +1,5 @@
 # walking-game
+
 Our School mobile develoment project.
 Requires expo to work.
 https://docs.expo.dev/tutorial/create-your-first-app/
