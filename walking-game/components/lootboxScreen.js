@@ -11,7 +11,7 @@ const LootboxScreen = () => {
   const { initializeItemData } = initItems();
 
   const [tapCount, setTapCount] = useState(0); //lootboxin avauspainallusten määrä
-  const tapThreshold = 49;  //kuinka monesti pitää painaa että lootbox aukeaa,
+  const tapThreshold = 19;  //kuinka monesti pitää painaa että lootbox aukeaa,
   //kannattaa laittaa -1 siitä lopullisesta halutusta summasta :D
   //alhaalla määritelty näkymään +1 niin ei renderöidy 0 taps remaining vaan 1
 
