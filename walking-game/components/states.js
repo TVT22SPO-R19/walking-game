@@ -67,8 +67,8 @@ export const state$ = observable({
 
     lootbox: {
         lootboxCount: 0,
-        lootboxGoldPrice: 10,
-        lootboxDiamondPrice: 1
+        lootboxGoldPrice: 15000,
+        lootboxDiamondPrice: 15
 
     },
 

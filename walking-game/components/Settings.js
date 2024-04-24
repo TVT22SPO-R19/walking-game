@@ -51,7 +51,7 @@ const SettingsModal = ({ closeModal, primaryColor }) => {
         <Text style={styles.text}>Strenght power: {state$.skills.strength.power.get()}</Text>
         <Text style={styles.text}>Agility power: {state$.skills.agility.power.get()}</Text>
         <Text style={styles.text}>Stamina power: {state$.skills.stamina.power.get()}</Text>
-        <Text style={styles.text}>intelligence power: {state$.skills.intelligence.power.get()}</Text>
+        <Text style={styles.text}>Intelligence power: {state$.skills.intelligence.power.get()}</Text>
       </View>
     </View>
   );

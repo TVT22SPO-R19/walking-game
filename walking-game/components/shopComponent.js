@@ -128,7 +128,7 @@ export default function ShopComponent() {
           <TouchableOpacity
             style={[styles.lootboxButton, { backgroundColor: 'lightblue' }]}
             onPress={handlePurchaseWithDiamonds}>
-            <Text style={styles.lootboxButtonText}>Buy with {lootboxDiamondPrice} Diamond</Text>
+            <Text style={styles.lootboxButtonText}>Buy with {lootboxDiamondPrice} Diamonds</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -218,6 +218,7 @@ const styles = StyleSheet.create({
   lootboxButtonsContainer: {
     flexDirection: 'row',
     marginBottom: 10,
+    width: '57%',
   },
   lootboxButton: {
     padding: 10,
