@@ -19,7 +19,7 @@ export default RandomItemView = () => {
         // Function to select a random item from allItemsDict. Items require the key restricted with the value shop. 
         const selectRandomItem = () => {
             const filteredItems = Object.entries(allItemsDict)
-                //.filter(([id, item]) => item.restricted.includes("shop"))
+                .filter(([id, item]) => !item.restricted.includes("bundle"))
                 .reduce((obj, [id, item]) => {
                     obj[id] = { ...item, id };
                     return obj;
