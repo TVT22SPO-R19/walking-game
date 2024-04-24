@@ -92,14 +92,6 @@ export default function ShopComponent() {
       alert("Please spend more money on microtransactions. (Group 19 incorporated isn't liable for mental health and/or financial issues caused by spending money on our shop)");
     }
   };
-  
-
-  // Function to reset state (for testing purposes)
-  const handleReset = () => {
-    state$.currency.gold.set(1000);
-    state$.currency.diamonds.set(10);
-    setEuros(10);
-  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -175,9 +167,6 @@ export default function ShopComponent() {
           </TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-        <Text style={styles.resetButtonText}>Reset</Text>
-      </TouchableOpacity>
     </ScrollView>
   );  
 }
@@ -185,9 +174,9 @@ export default function ShopComponent() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    justifyContent: 'flex-start',
-    alignItems: 'flex-start',
-    backgroundColor: 'lightgray',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#313338',
     padding: 10,
   },
   currencyContainer: {
@@ -195,6 +184,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     marginTop: 20,
     marginBottom: 20,
+    backgroundColor: '#77dd77',
   },
   currencyText: {
     fontSize: 16,
@@ -256,16 +246,5 @@ const styles = StyleSheet.create({
   euroConversionButtonText: {
     fontSize: 14,
     fontWeight: 'bold',
-  },  
-  resetButton: {
-    backgroundColor: 'orange',
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  resetButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  }
 });
