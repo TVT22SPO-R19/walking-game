@@ -136,7 +136,6 @@ const LootboxScreen = () => {
     }
   };
 
-
   return (
     <View style={styles.container}>
       <Text style={styles.welcomeMessage}>Welcome to the Lootbox Emporium 🎰</Text>
@@ -181,6 +180,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#313338',
     padding: 15,
+    marginBottom: 15,
   },
   welcomeMessage: {
     marginBottom: 15,
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     padding: 10,
-    marginBottom: 15,
+    marginBottom: 10,
     width: '85%',
     backgroundColor: '#46C2CB',
   },
