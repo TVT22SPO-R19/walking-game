@@ -180,28 +180,25 @@ export default function ItemsComponent() {
 
     const filterItemsByRarityAndEffect = () => {
         let filteredItems = ownedItems;
-            if (selectedRarity !== 'All') {
-                filteredItems = filteredItems.filter(itemKey => {
-                    const itemId = allItemsDict[itemKey];
-                    return itemId.rarity === selectedRarity;
-                });
-            }
-    
-            // Filter by effect category
-            if (selectedEffect !== 'All') {
-                filteredItems = filteredItems.filter(itemKey => {
-                    const item = itemValues[itemKey];
-                    // Check if the item has skillMod and if the selected effect is present in skillMod
-                    const hasSkillMod = item.currentStats && item.currentStats.skillMod && item.currentStats.skillMod[selectedEffect] !== undefined;
-                    // Check if the item has baseMod and if the selected effect is present in baseMod
-                    const hasBaseMod = item.currentStats && item.currentStats.baseMod && item.currentStats.baseMod[selectedEffect] !== undefined;
-                    // Include the item in the filtered list if the selected effect is found in either skillMod or baseMod
-                    return hasSkillMod || hasBaseMod;
-                });
-            }
-    
-            return filteredItems;
-    
+        if (selectedRarity !== 'All') {
+            filteredItems = filteredItems.filter(itemKey => {
+                const itemId = allItemsDict[itemKey];
+                return itemId.rarity === selectedRarity;
+            });
+        }
+
+        // Filter by effect category
+        if (selectedEffect !== 'All') {
+            filteredItems = filteredItems.filter(itemKey => {
+                const item = itemValues[itemKey];
+                const hasSkillMod = item.currentStats && item.currentStats.skillMod && item.currentStats.skillMod[selectedEffect] !== undefined;
+                const hasBaseMod = item.currentStats && item.currentStats.baseMod && item.currentStats.baseMod[selectedEffect] !== undefined;
+                return hasSkillMod || hasBaseMod;
+            });
+        }
+
+        return filteredItems;
+
     };
 
     return (
@@ -245,27 +242,60 @@ export default function ItemsComponent() {
                                 const itemId = allItemsDict[itemKey];
 
                                 if (item) {
+                                    let rarityColorStyle;
+                                    switch (itemId.rarity) {
+                                        case 'Common':
+                                            rarityColorStyle = styles.common;
+                                            break;
+                                        case 'Rare':
+                                            rarityColorStyle = styles.rare;
+                                            break;
+                                        case 'Legendary':
+                                            rarityColorStyle = styles.legendary;
+                                            break;
+                                        default:
+                                            rarityColorStyle = styles.common;
+                                    }
+
                                     return (
                                         <View key={itemId.name} style={styles.itemContainer}>
-                                            <Text>Rarity: {itemId.rarity}</Text>
-                                            <Text>Name: {itemId.name}</Text>
-                                            <Text>Effect:</Text>
+                                            <Text style={rarityColorStyle}>{itemId.rarity}</Text>
+                                            <Text style={{ fontSize: 16, }}>{itemId.name}</Text>
                                             {Object.entries(item.currentStats).map(([category, value]) => (
-                                                Object.entries(item.currentStats[category]).map(([keyEffect, keyValue]) => (
-                                                    <Text key={keyEffect}>{effectDescriptions[keyEffect]}: {keyValue.toFixed(2)}</Text>
-                                                ))
+                                                Object.entries(item.currentStats[category]).map(([keyEffect, keyValue]) => {
+                                                    let effectColorStyle;
+                                                    switch (keyEffect) {
+                                                        case 'agility':
+                                                            effectColorStyle = styles.agility;
+                                                            break;
+                                                        case 'strenght':
+                                                            effectColorStyle = styles.strenght;
+                                                            break;
+                                                        case 'stamina':
+                                                            effectColorStyle = styles.stamina;
+                                                            break;
+                                                        case 'intelligence':
+                                                            effectColorStyle = styles.intelligence;
+                                                            break;
+                                                        default:
+                                                            effectColorStyle = styles.baseMod;
+                                                    }
+                                                    return (
+                                                        <Text key={keyEffect} style={effectColorStyle}>
+                                                            {effectDescriptions[keyEffect]}: {keyValue.toFixed(2)}
+                                                        </Text>
+                                                    );
+                                                })
                                             ))}
                                             <Text>Level: {item?.level}</Text>
                                         </View>
                                     );
-                                    } else {
+                                } else {
                                     console.log("Item", itemKey, "is undefined");
                                 }
-                                
                             })}
                         </View>
-                    )
-                    }
+                    )}
                 </View>
             )}
         </ScrollView>
@@ -282,7 +312,7 @@ const styles = StyleSheet.create({
         marginRight: 10,
         backgroundColor: '#656565',
         padding: 10,
-        borderColor: '#C95B0C', // orange border color
+        borderColor: '#C95B0C',
         borderWidth: 2,
         borderRadius: 5,
 
@@ -291,8 +321,8 @@ const styles = StyleSheet.create({
 
         flexDirection: 'row',
         justifyContent: 'space-between',
-        backgroundColor: '#e0e0e0', // gray background for item container
-        borderColor: '#C95B0C', // orange border color
+        backgroundColor: '#e0e0e0',
+        borderColor: '#C95B0C',
         borderWidth: 2,
         borderRadius: 5,
         padding: 10,
@@ -317,11 +347,36 @@ const styles = StyleSheet.create({
         borderColor: '#C95B0C',
     },
     itemContainer: {
-        backgroundColor: '#e0e0e0', // gray background for item container
-        borderColor: '#C95B0C', // orange border color
+        backgroundColor: '#e0e0e0',
+        borderColor: '#C95B0C',
         borderWidth: 2,
         borderRadius: 5,
         padding: 10,
         marginBottom: 10,
     },
+    common: {
+        color: 'green',
+    },
+    rare: {
+        color: 'blue',
+    },
+    legendary: {
+        color: '#DAA520',
+    },
+    baseMod: {
+        color: 'black'
+    },
+    stamina: {
+        color: 'darkgreen'
+    },
+    strenght: {
+        color: 'red'
+    },
+    agility: {
+        color: 'mediumorchid'
+    },
+    intelligence: {
+        color: 'blue'
+    },
+
 });
