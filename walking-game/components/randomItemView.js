@@ -67,11 +67,25 @@ export default RandomItemView = () => {
             console.log("No money")
         }
     };
-
+    const getItemRarityColor = (rarity) => {
+        switch (rarity) {
+          case 'Common':
+            return styles.common;
+          case 'Rare':
+            return styles.rare;
+          case 'Legendary':
+            return styles.legendary;
+          default:
+            return {}; // Default style if rarity is not recognized
+        }
+      };
+      
     return (
         <View>
             {currentItem && (
                 <>
+                    <Text style={[ getItemRarityColor(currentItem.rarity)]}>{currentItem.rarity}</Text>
+
                     <Text style={{ fontSize: 16, }}>{currentItem.name}</Text>
                     <Text>Effects:</Text>
                     <View>
@@ -139,4 +153,14 @@ const styles = StyleSheet.create({
     intelligence: {
         color: 'blue'
     },
+    common: {
+        color: 'green',
+    },
+    rare: {
+        color: 'blue',
+    },
+    legendary: {
+        color: '#DAA520',
+    },
+
 });
