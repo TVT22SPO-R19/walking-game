@@ -1,13 +1,19 @@
-import React from 'react';
-import { View, Text, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import ItemDatabase from './itemDatabase';
 import { state$ } from './states';
 import { initItems } from './ItemsComponent';
+import chest from '../assets/chest.png';
 
 
 const LootboxScreen = () => {
 
   const { initializeItemData } = initItems();
+
+  const [tapCount, setTapCount] = useState(0); //lootboxin avauspainallusten määrä
+  const tapThreshold = 49;  //kuinka monesti pitää painaa että lootbox aukeaa,
+  //kannattaa laittaa -1 siitä lopullisesta halutusta summasta :D
+  //alhaalla määritelty näkymään +1 niin ei renderöidy 0 taps remaining vaan 1
 
   const gold = state$.currency.gold.get();
   const diamonds = state$.currency.diamonds.get();
@@ -76,61 +82,59 @@ const LootboxScreen = () => {
     return filteredItems[randomIndex];
   };
 
-  const testDetermineRarity = () => {
-    const results = { 'Legendary': 0, 'Rare': 0, 'Common': 0 };
-    const testCount = 10000;
+  //function to test rarity distribution, call in another function if needed
+  /*  const testDetermineRarity = () => {
+      const results = { 'Legendary': 0, 'Rare': 0, 'Common': 0 };
+      const testCount = 10000;
+  
+      // Run the function a large number of times to see the distribution of rarities
+      for (let i = 0; i < testCount; i++) {
+          const rarity = determineRarity();
+          results[rarity]++;
+      }
+  
+      console.log('Distribution of Rarities:');
+      console.log(`Legendary: ${results['Legendary']} (${(results['Legendary'] / testCount * 100).toFixed(2)}%)`);
+      console.log(`Rare: ${results['Rare']} (${(results['Rare'] / testCount * 100).toFixed(2)}%)`);
+      console.log(`Common: ${results['Common']} (${(results['Common'] / testCount * 100).toFixed(2)}%)`);
+  };*/
 
-    // Run the function a large number of times to see the distribution of rarities
-    for (let i = 0; i < testCount; i++) {
-        const rarity = determineRarity();
-        results[rarity]++;
-    }
-
-    console.log('Distribution of Rarities:');
-    console.log(`Legendary: ${results['Legendary']} (${(results['Legendary'] / testCount * 100).toFixed(2)}%)`);
-    console.log(`Rare: ${results['Rare']} (${(results['Rare'] / testCount * 100).toFixed(2)}%)`);
-    console.log(`Common: ${results['Common']} (${(results['Common'] / testCount * 100).toFixed(2)}%)`);
-};
-
-  //function that checks if there are more than zero lootboxes and then displays a pop-up alert with the opened item
   const openLootbox = () => {
-    testDetermineRarity()
-    if (lootboxCount > 0) {
+
+
+    if (lootboxCount > 0 && tapCount >= tapThreshold) { //if there are lootboxes and threshold for taps is full then item drops
+      setTapCount(0);
       state$.lootbox.lootboxCount.set(lootboxCount - 1); //removes one lootbox from lootboxCount when one is opened
       const lootboxItems = Object.values(itemFilter(items, "lootbox")); //uses the filter function to filter ItemDatabase's dictionary only retaining items tagged 'lootbox'
 
       const selectedRarity = determineRarity();
       const filteredItems = filterItemsByRarity(lootboxItems, selectedRarity);
 
-      if (filteredItems.length === 0) {
-        Alert.alert("No items found", "There are no items of the selected rarity.");
-        return;
-      }
-
+      //item drop logic
       const selectedItem = selectRandomItem(filteredItems);
       const selectedItemName = selectedItem.name;
       console.log(selectedItem);
       const selectedItemID = Object.keys(items).find(key => items[key].name === selectedItemName);
 
-      //tarkistaa onko esinettä, lisää jos ei
-      if (!state$.itemData.hasOwnProperty(selectedItemID)) {
+      if (!state$.itemData.hasOwnProperty(selectedItemID)) {  //check whether item exists and if it doesn't then creates it
         state$.itemData[selectedItemID].set({ level: 1, init: 0 });
         initializeItemData();
         console.log(state$.itemData.get());
-      } else if (state$.itemData.hasOwnProperty(selectedItemID)) { //jos esine on, levelaa sitä
+      } else if (state$.itemData.hasOwnProperty(selectedItemID)) { //if item exists, levels it up
         let curItem = { ...state$.itemData[selectedItemID].get() }
         curItem.level++;
         state$.itemData[selectedItemID].set(curItem);
         initializeItemData();
       }
 
-      Alert.alert("Lootbox opened!", `You received: ${selectedItem.name} \n\nRarity: ${selectedItem.rarity}`);
+      Alert.alert("Lootbox opened!", `You received: ${selectedItem.name} \n\nRarity: ${selectedItem.rarity}`); //lootbox opening alert
+    } else if (lootboxCount > 0 && tapCount >= !tapThreshold) { //logic for tapping minigame
+      setTapCount((prevCount) => prevCount + 1);
+      console.log('count:', tapCount)
     } else {
-      // If the player has no lootboxes, show an alert
-      Alert.alert("No lootboxes", "You don't have any lootboxes to open.");
+      Alert.alert("No lootboxes", "You don't have any lootboxes to open."); //if try to open lootbox with zero then alerts this
     }
   };
-
 
   return (
     <View style={styles.container}>
@@ -154,12 +158,16 @@ const LootboxScreen = () => {
         </TouchableOpacity>
       </View>
       <View style={styles.sectionContainer}>
-        <Text style={styles.buttonDescription}>You have {lootboxCount} lootboxes</Text>
         <Text style={styles.currencyText}>Lootboxes: {lootboxCount}🧰</Text>
         <TouchableOpacity
           style={styles.buyLootboxButton}
           onPress={openLootbox}>
-          <Text style={styles.lootboxButtonText}>Open a Lootbox</Text>
+          <Image
+            source={chest}
+            style={styles.lootboxImage}
+          />
+          <Text style={styles.lootboxButtonText}>Keep tapping to open a Lootbox!</Text>
+          <Text style={styles.lootboxButtonText}>Taps remaining: {tapThreshold + 1 - tapCount}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -172,6 +180,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#313338',
     padding: 15,
+    marginBottom: 15,
   },
   welcomeMessage: {
     marginBottom: 15,
@@ -193,7 +202,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     padding: 10,
-    marginBottom: 15,
+    marginBottom: 10,
     width: '85%',
     backgroundColor: '#46C2CB',
   },
@@ -215,6 +224,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  lootboxImage: {
+    width: 50,
+    height: 50,
   },
 
 });
