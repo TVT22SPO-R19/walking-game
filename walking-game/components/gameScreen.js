@@ -166,7 +166,7 @@ export default function GameScreen() {
 
 const gamestyles = StyleSheet.create({
   container: {
-    backgroundColor: '#2B2D31' ,
+    backgroundColor: '#313338' ,
     color: 'white',
     flex: 1,
     alignItems: 'center',
@@ -175,12 +175,14 @@ const gamestyles = StyleSheet.create({
   text: {
     marginTop: 10,
     marginBottom: 10,
-    color: 'white'
+    color: 'white',
+    fontWeight: 'bold',
   },
   text2: {
     marginBottom: -30,
     color: 'black',
     zIndex: 1, // Ensure the text is on top by setting a higher z-index
+    fontWeight: 'bold',
   },
   progress: {
     width: "90%",
@@ -195,6 +197,13 @@ const gamestyles = StyleSheet.create({
     alignItems: 'center',
     width: '90%',
     height: 40,
+    
+    
+  },
+  buttonText: {
+    fontWeight: 'bold'
+
+    
     
   },
 });
